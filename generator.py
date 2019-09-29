@@ -12,10 +12,11 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path: str, backend_url: str, proxy: bool):
+    def __init__(self, openapi_path: str, backend_url: str, proxy: bool, vpc_link_id: str):
         self.openapi_path = openapi_path
         self.backend_url = backend_url
         self.proxy = proxy
+        self.vpc_link_id = vpc_link_id
         self.cloudformation_path = os.path.abspath(os.path.join(CURRENT_FOLDER, "apigateway.yaml"))
         self.cloudformation = {
             "AWSTemplateFormatVersion": "2010-09-09",
@@ -79,12 +80,16 @@ class Generator:
 
 def main():
     parser = argparse.ArgumentParser(description="Generate AWS ApiGateway CloudFormation from OpenAPI specification")
+    # Required params
     parser.add_argument("--file", "-f", required=True, type=str, help="Path to the OpenAPI specification file")
     parser.add_argument("--backend_url", "-u", required=True, type=str,
                         help="Backend URL to forward the requests to (use ARN for lambda backend)")
-    parser.add_argument("--proxy", "-p", action="store_true", help="Proxy all requests to the backend")
+
+    # Optional params
+    parser.add_argument("--proxy", "-p", required=False, action="store_true", help="Proxy all requests to the backend")
+    parser.add_argument("--vpc_link_id", "-v", required=False, help="If backend is an VPC link, provide the link ID")
     args = parser.parse_args()
-    generator = Generator(args.file, args.backend_url, args.proxy)
+    generator = Generator(args.file, args.backend_url, args.proxy, args.vpc_link_id)
     generator.generate()
 
 
