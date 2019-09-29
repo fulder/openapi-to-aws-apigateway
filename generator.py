@@ -12,9 +12,10 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path):
+    def __init__(self, openapi_path: dict, backend_url: str, proxy: bool):
         self.openapi_path = openapi_path
-        self.docs = None
+        self.backend_url = backend_url
+        self.proxy = proxy
         self.cloudformation_path = os.path.abspath(os.path.join(CURRENT_FOLDER, "apigateway.yaml"))
         self.cloudformation = {
             "AWSTemplateFormatVersion": "2010-09-09",
@@ -66,8 +67,9 @@ def main():
     parser.add_argument("--file", "-f", required=True, type=str, help="Path to the OpenAPI specification file")
     parser.add_argument("--backend_url", "-u", required=True, type=str,
                         help="Backend URL to forward the requests to (use ARN for lambda backend)")
+    parser.add_argument("--proxy", "-p", action="store_true", help="Proxy all requests to the backend")
     args = parser.parse_args()
-    generator = Generator(args.file)
+    generator = Generator(args.file, args.backend_url, args.proxy)
     generator.generate()
 
 
