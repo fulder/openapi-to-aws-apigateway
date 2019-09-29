@@ -35,9 +35,13 @@ class Generator:
         self._load_file()
         self._determine_type()
 
-        self._add_responses()
+        self._extend_verbs()
 
         self._save_cloudformation()
+
+    @property
+    def is_lambda_integration(self):
+        return self.backend_url.startswith("arn:")
 
     def _load_file(self):
         with open(self.openapi_path, "r") as f:
@@ -47,7 +51,7 @@ class Generator:
                 self.docs = yaml.safe_load(f)
 
     def _determine_type(self):
-        if self.backend_url.startswith("arn:"):
+        if self.is_lambda_integration:
             self.type = "aws"
         else:
             self.type = "http"
@@ -55,23 +59,47 @@ class Generator:
         if self.proxy:
             self.type += "_proxy"
 
-    def _add_responses(self):
+    def _extend_verbs(self):
+        integration = self._init_integration()
+
         for p in self.docs["paths"]:
             for v in self.docs["paths"][p]:
                 verb = self.docs["paths"][p][v]
-                responses = verb.get("responses")
-                if not responses:
-                    logger.debug("[%s %s] has no responses")
-                    continue
 
-                amz_responses = {}
-                for r in responses:
-                    amz_responses[r] = {
-                        "statusCode": r,
-                        "type": self.type
-                    }
+                logger.debug("Adding integration to [%s %s]", v, p)
+                self._create_integration(v, verb, integration)
 
-                verb["x-amazon-apigateway-integration"] = {"responses": amz_responses}
+    def _init_integration(self) -> dict:
+        integration = {
+            "responses": {}
+        }
+        if self.vpc_link_id:
+            logger.debug("Adding connectionId: [%s] to all integrations", self.vpc_link_id)
+            integration["connectionId"] = self.vpc_link_id
+            integration["connectionType"] = "VPC_LINK"
+        else:
+            integration["connectionType"] = "INTERNET"
+        return integration
+
+    def _create_integration(self, method: str, verb: dict, integration: dict):
+        if self.is_lambda_integration:
+            integration["httpMethod"] = "POST"
+        else:
+            integration["httpMethod"] = method
+
+        responses = verb.get("responses")
+        if responses:
+            logger.debug("Adding responses for verb")
+
+            amz_responses = verb["x-amazon-apigateway-integration"]
+            for r in responses:
+                amz_responses[r] = {
+                    "statusCode": r,
+                    "type": self.type
+                }
+            integration["responses"] = amz_responses
+
+        verb["x-amazon-apigateway-integration"] = integration
 
     def _save_cloudformation(self):
         with open(self.cloudformation_path, "w") as f:
