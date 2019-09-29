@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path: dict, backend_url: str, proxy: bool):
+    def __init__(self, openapi_path: str, backend_url: str, proxy: bool):
         self.openapi_path = openapi_path
         self.backend_url = backend_url
         self.proxy = proxy
