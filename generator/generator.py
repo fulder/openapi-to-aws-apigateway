@@ -92,7 +92,7 @@ class Generator:
         if responses:
             logger.debug("Adding responses for verb")
 
-            amz_responses = verb["x-amazon-apigateway-integration"]
+            amz_responses = {}
             for r in responses:
                 amz_responses[r] = {
                     "statusCode": r,
