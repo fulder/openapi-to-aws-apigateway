@@ -49,4 +49,58 @@ class TestGenerator(unittest.TestCase):
         }
         self.assertEqual(exp_integration, integration)
 
+    def test_create_integration_creates_correct_verb(self):
+        generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        integration = generator._init_integration()
+        verb = {}
+        generator._create_integration("TEST_VERB", verb, integration)
+        exp_verb = {
+            "x-amazon-apigateway-integration": {
+                "connectionType": "INTERNET",
+                "httpMethod": "TEST_VERB",
+                "responses": {},
+            }
+        }
+        self.assertEqual(exp_verb, verb)
+
+    def test_create_integration_with_lambda_creates_post_method(self):
+        generator = Generator("test_swagger.json", "arn::lambda", True, "")
+        integration = generator._init_integration()
+        verb = {}
+        generator._create_integration("TEST_VERB", verb, integration)
+        exp_verb = {
+            "x-amazon-apigateway-integration": {
+                "connectionType": "INTERNET",
+                "httpMethod": "POST",
+                "responses": {},
+            }
+        }
+        self.assertEqual(exp_verb, verb)
+
+    def test_create_integration_with_responses(self):
+        generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        integration = generator._init_integration()
+        verb = {
+            "responses": {
+                "200": {},
+                "400": {}
+            }
+        }
+        generator._create_integration("TEST_VERB", verb, integration)
+        exp_verb = {
+            "x-amazon-apigateway-integration": {
+                "connectionType": "INTERNET",
+                "httpMethod": "POST",
+                "responses": {
+                    "200": {
+                        "statusCode": "200"
+                    },
+                    "400": {
+                        "statusCode": "400"
+                    }
+                },
+            }
+        }
+        self.assertEqual(exp_verb, verb)
+
 
