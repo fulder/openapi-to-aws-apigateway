@@ -6,13 +6,21 @@ import yaml
 
 CURRENT_FOLDER = os.path.dirname(os.path.realpath(__file__))
 
+
 class Generator:
 
     def __init__(self, openapi_path):
         self.openapi_path = openapi_path
         self.docs = None
         self.cloudformation_path = os.path.abspath(os.path.join(CURRENT_FOLDER, "apigateway.yaml"))
-        self.cloudformation = {"AWSTemplateFormatVersion": "2010-09-09", "Resources": {}}
+        self.cloudformation = {
+            "AWSTemplateFormatVersion": "2010-09-09",
+            "Resources": {
+                "RestApi": {
+                    "Type": "AWS::ApiGateway::RestApi"
+                }
+            }
+        }
 
     def generate(self):
         self._load_file()
