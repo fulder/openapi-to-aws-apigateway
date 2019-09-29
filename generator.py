@@ -28,6 +28,8 @@ class Generator:
     def generate(self):
         self._load_file()
 
+        self._add_responses()
+
         self._save_cloudformation()
 
     def _load_file(self):
@@ -36,6 +38,23 @@ class Generator:
                 self.docs = json.load(f)
             else:
                 self.docs = yaml.safe_load(f)
+
+    def _add_responses(self):
+        for p in self.docs["paths"]:
+            for v in self.docs["paths"][p]:
+                verb = self.docs["paths"][p][v]
+                responses = verb.get("responses")
+                if not responses:
+                    logger.debug("[%s %s] has no responses")
+                    continue
+
+                amz_responses = {}
+                for r in responses:
+                    amz_responses[r] = {
+                        "statusCode": r,
+                    }
+
+                verb["x-amazon-apigateway-integration"] = {"responses": amz_responses}
 
     def _save_cloudformation(self):
         with open(self.cloudformation_path, "w") as f:
