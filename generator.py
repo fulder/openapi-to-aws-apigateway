@@ -64,6 +64,8 @@ class Generator:
 def main():
     parser = argparse.ArgumentParser(description="Generate AWS ApiGateway CloudFormation from OpenAPI specification")
     parser.add_argument("--file", "-f", required=True, type=str, help="Path to the OpenAPI specification file")
+    parser.add_argument("--backend_url", "-u", required=True, type=str,
+                        help="Backend URL to forward the requests to (use ARN for lambda backend)")
     args = parser.parse_args()
     generator = Generator(args.file)
     generator.generate()
