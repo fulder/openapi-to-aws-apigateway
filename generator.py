@@ -67,6 +67,7 @@ class Generator:
                 for r in responses:
                     amz_responses[r] = {
                         "statusCode": r,
+                        "type": self.type
                     }
 
                 verb["x-amazon-apigateway-integration"] = {"responses": amz_responses}
