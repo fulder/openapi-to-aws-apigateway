@@ -68,10 +68,11 @@ class Generator:
                 verb = self.docs["paths"][p][v]
 
                 logger.debug("Adding integration to [%s %s]", v, p)
-                self._create_integration(v, verb, integration)
+                self._create_integration(v, p, verb, integration)
 
     def _init_integration(self) -> dict:
         integration = {
+            "requestParameters": {},
             "responses": {},
             "type": self.backend_type
         }
@@ -83,11 +84,13 @@ class Generator:
             integration["connectionType"] = "INTERNET"
         return integration
 
-    def _create_integration(self, method: str, verb: dict, integration: dict):
+    def _create_integration(self, method: str, path: str, verb: dict, integration: dict):
         if self.is_lambda_integration:
             integration["httpMethod"] = "POST"
         else:
             integration["httpMethod"] = method
+
+        integration["uri"] = "{}{}".format(self.backend_url, path)
 
         responses = verb.get("responses")
         if responses:

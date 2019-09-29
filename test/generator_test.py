@@ -37,7 +37,8 @@ class TestGenerator(unittest.TestCase):
         exp_integration = {
             "responses": {},
             "connectionType": "INTERNET",
-            "type": "aws_proxy"
+            "type": "aws_proxy",
+            "requestParameters": {}
         }
         self.assertEqual(exp_integration, integration)
 
@@ -49,7 +50,8 @@ class TestGenerator(unittest.TestCase):
             "responses": {},
             "connectionId": "VPC_LINK_ID",
             "connectionType": "VPC_LINK",
-            "type": "http_proxy"
+            "type": "http_proxy",
+            "requestParameters": {},
         }
         self.assertEqual(exp_integration, integration)
 
@@ -58,13 +60,15 @@ class TestGenerator(unittest.TestCase):
         generator._determine_type()
         integration = generator._init_integration()
         verb = {}
-        generator._create_integration("TEST_VERB", verb, integration)
+        generator._create_integration("TEST_VERB", "/path1", verb, integration)
         exp_verb = {
             "x-amazon-apigateway-integration": {
                 "connectionType": "INTERNET",
                 "httpMethod": "TEST_VERB",
                 "responses": {},
-                "type": "http_proxy"
+                'requestParameters': {},
+                "type": "http_proxy",
+                "uri": "http://my-backend/path1"
             }
         }
         self.assertEqual(exp_verb, verb)
@@ -74,13 +78,15 @@ class TestGenerator(unittest.TestCase):
         generator._determine_type()
         integration = generator._init_integration()
         verb = {}
-        generator._create_integration("TEST_VERB", verb, integration)
+        generator._create_integration("TEST_VERB", "/path1", verb, integration)
         exp_verb = {
             "x-amazon-apigateway-integration": {
                 "connectionType": "INTERNET",
                 "httpMethod": "POST",
                 "responses": {},
-                "type": "aws_proxy"
+                "requestParameters": {},
+                "type": "aws_proxy",
+                "uri": "arn:lambda"
             }
         }
         self.assertEqual(exp_verb, verb)
@@ -95,7 +101,7 @@ class TestGenerator(unittest.TestCase):
                 "400": {}
             }
         }
-        generator._create_integration("TEST_VERB", verb, integration)
+        generator._create_integration("TEST_VERB", "/path1", verb, integration)
         exp_verb = {
             "responses": {
                 "200": {},
@@ -112,7 +118,9 @@ class TestGenerator(unittest.TestCase):
                         "statusCode": "400"
                     }
                 },
-                "type": "http_proxy"
+                "requestParameters": {},
+                "type": "http_proxy",
+                "uri": "http://my-backend/path1"
             }
         }
         self.assertEqual(exp_verb, verb)
