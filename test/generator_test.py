@@ -10,9 +10,6 @@ logger.setLevel("DEBUG")
 
 class TestGenerator(unittest.TestCase):
 
-    def setUp(self) -> None:
-        self.generator = Generator("test_swagger.json", "http://my-backend", False, "")
-
     def test_determine_type_http(self):
         generator = Generator("test_swagger.json", "http://my-backend", False, "")
         generator._determine_type()
@@ -32,5 +29,24 @@ class TestGenerator(unittest.TestCase):
         generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "")
         generator._determine_type()
         self.assertEqual("aws_proxy", generator.backend_type)
+
+    def test_init_integration_internet_type(self):
+        generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "")
+        integration = generator._init_integration()
+        exp_integration = {
+            "responses": {},
+            "connectionType": "INTERNET"
+        }
+        self.assertEqual(exp_integration, integration)
+
+    def test_init_integration_vpc_type(self):
+        generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "VPC_LINK_ID")
+        integration = generator._init_integration()
+        exp_integration = {
+            "responses": {},
+            "connectionId": "VPC_LINK_ID",
+            "connectionType": "VPC_LINK"
+        }
+        self.assertEqual(exp_integration, integration)
 
 
