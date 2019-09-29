@@ -26,8 +26,13 @@ class Generator:
             }
         }
 
+        # Created by helper funcs during generate
+        self.docs = None
+        self.type = None
+
     def generate(self):
         self._load_file()
+        self._determine_type()
 
         self._add_responses()
 
@@ -39,6 +44,15 @@ class Generator:
                 self.docs = json.load(f)
             else:
                 self.docs = yaml.safe_load(f)
+
+    def _determine_type(self):
+        if self.backend_url.startswith("arn:"):
+            self.type = "aws"
+        else:
+            self.type = "http"
+
+        if self.proxy:
+            self.type += "_proxy"
 
     def _add_responses(self):
         for p in self.docs["paths"]:
