@@ -1,10 +1,13 @@
 import argparse
 import json
+import logging
 import os
 
 import yaml
 
 CURRENT_FOLDER = os.path.dirname(os.path.realpath(__file__))
+
+logger = logging.getLogger(__name__)
 
 
 class Generator:
@@ -48,4 +51,6 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
+    logger.setLevel("DEBUG")
     main()
