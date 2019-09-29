@@ -90,7 +90,10 @@ class Generator:
         else:
             integration["httpMethod"] = method
 
-        integration["uri"] = "{}{}".format(self.backend_url, path)
+        if self.is_lambda_integration:
+            integration["uri"] = self.backend_url
+        else:
+            integration["uri"] = "{}{}".format(self.backend_url, path)
 
         responses = verb.get("responses")
         if responses:
