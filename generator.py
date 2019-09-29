@@ -36,7 +36,7 @@ class Generator:
 
     def _save_cloudformation(self):
         with open(self.cloudformation_path, "w") as f:
-            yaml.safe_dump(self.cloudformation, f)
+            yaml.safe_dump(self.cloudformation, f, default_flow_style=False)
 
 
 def main():
