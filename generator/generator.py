@@ -29,7 +29,7 @@ class Generator:
 
         # Created by helper funcs during generate
         self.docs = None
-        self.type = None
+        self.backend_type = None
 
     def generate(self):
         self._load_file()
@@ -52,12 +52,13 @@ class Generator:
 
     def _determine_type(self):
         if self.is_lambda_integration:
-            self.type = "aws"
+            self.backend_type = "aws"
         else:
-            self.type = "http"
+            self.backend_type = "http"
 
         if self.proxy:
-            self.type += "_proxy"
+            self.backend_type += "_proxy"
+        logger.debug("Determined backend type as: [%s]", self.backend_type)
 
     def _extend_verbs(self):
         integration = self._init_integration()
@@ -95,7 +96,7 @@ class Generator:
             for r in responses:
                 amz_responses[r] = {
                     "statusCode": r,
-                    "type": self.type
+                    "type": self.backend_type
                 }
             integration["responses"] = amz_responses
 
