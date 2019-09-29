@@ -32,25 +32,30 @@ class TestGenerator(unittest.TestCase):
 
     def test_init_integration_internet_type(self):
         generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "")
+        generator._determine_type()
         integration = generator._init_integration()
         exp_integration = {
             "responses": {},
-            "connectionType": "INTERNET"
+            "connectionType": "INTERNET",
+            "type": "aws_proxy"
         }
         self.assertEqual(exp_integration, integration)
 
     def test_init_integration_vpc_type(self):
-        generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "VPC_LINK_ID")
+        generator = Generator("test_swagger.json", "http://vpc_endpoint", True, "VPC_LINK_ID")
+        generator._determine_type()
         integration = generator._init_integration()
         exp_integration = {
             "responses": {},
             "connectionId": "VPC_LINK_ID",
-            "connectionType": "VPC_LINK"
+            "connectionType": "VPC_LINK",
+            "type": "http_proxy"
         }
         self.assertEqual(exp_integration, integration)
 
     def test_create_integration_creates_correct_verb(self):
         generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        generator._determine_type()
         integration = generator._init_integration()
         verb = {}
         generator._create_integration("TEST_VERB", verb, integration)
@@ -59,12 +64,14 @@ class TestGenerator(unittest.TestCase):
                 "connectionType": "INTERNET",
                 "httpMethod": "TEST_VERB",
                 "responses": {},
+                "type": "http_proxy"
             }
         }
         self.assertEqual(exp_verb, verb)
 
     def test_create_integration_with_lambda_creates_post_method(self):
-        generator = Generator("test_swagger.json", "arn::lambda", True, "")
+        generator = Generator("test_swagger.json", "arn:lambda", True, "")
+        generator._determine_type()
         integration = generator._init_integration()
         verb = {}
         generator._create_integration("TEST_VERB", verb, integration)
@@ -73,12 +80,14 @@ class TestGenerator(unittest.TestCase):
                 "connectionType": "INTERNET",
                 "httpMethod": "POST",
                 "responses": {},
+                "type": "aws_proxy"
             }
         }
         self.assertEqual(exp_verb, verb)
 
     def test_create_integration_with_responses(self):
         generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        generator._determine_type()
         integration = generator._init_integration()
         verb = {
             "responses": {
@@ -88,9 +97,13 @@ class TestGenerator(unittest.TestCase):
         }
         generator._create_integration("TEST_VERB", verb, integration)
         exp_verb = {
+            "responses": {
+                "200": {},
+                "400": {}
+            },
             "x-amazon-apigateway-integration": {
                 "connectionType": "INTERNET",
-                "httpMethod": "POST",
+                "httpMethod": "TEST_VERB",
                 "responses": {
                     "200": {
                         "statusCode": "200"
@@ -99,6 +112,7 @@ class TestGenerator(unittest.TestCase):
                         "statusCode": "400"
                     }
                 },
+                "type": "http_proxy"
             }
         }
         self.assertEqual(exp_verb, verb)
