@@ -72,7 +72,8 @@ class Generator:
 
     def _init_integration(self) -> dict:
         integration = {
-            "responses": {}
+            "responses": {},
+            "type": self.backend_type
         }
         if self.vpc_link_id:
             logger.debug("Adding connectionId: [%s] to all integrations", self.vpc_link_id)
@@ -95,8 +96,7 @@ class Generator:
             amz_responses = {}
             for r in responses:
                 amz_responses[r] = {
-                    "statusCode": r,
-                    "type": self.backend_type
+                    "statusCode": r
                 }
             integration["responses"] = amz_responses
 
