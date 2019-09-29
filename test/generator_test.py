@@ -4,6 +4,7 @@ import unittest
 from generator.generator import Generator
 
 logger = logging.getLogger("generator.generator")
+logger.addHandler(logging.StreamHandler())
 logger.setLevel("DEBUG")
 
 

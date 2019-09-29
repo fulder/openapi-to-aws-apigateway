@@ -124,6 +124,6 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
-    logger.setLevel("DEBUG")
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel("INFO")
     main()
