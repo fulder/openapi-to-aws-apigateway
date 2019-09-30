@@ -21,7 +21,6 @@ class Generator:
 
         self.output_folder = os.path.abspath(os.path.join(CURRENT_FOLDER, "out"))
         self.output_path_sam = os.path.join(self.output_folder, "apigateway.yaml")
-        self.output_path_openapi = os.path.join(self.output_folder, "openapi.yaml")
 
         self.cloudformation = {
             "AWSTemplateFormatVersion": "2010-09-09",
@@ -32,7 +31,7 @@ class Generator:
                     "Type": "AWS::Serverless::Api",
                     "Properties": {
                         "StageName": "default",
-                        "DefinitionUri": "openapi.yml",
+                        "DefinitionUri": "TO-BE-SET",
                     }
                 }
             }
@@ -41,6 +40,8 @@ class Generator:
         # Created by helper funcs during generate
         self.docs = None
         self.backend_type = None
+        self.docs_type = None
+        self.output_path_openapi = None
 
     def generate(self):
         # Don't dump reference pointers
@@ -48,6 +49,8 @@ class Generator:
 
         self._create_empty_output_folder()
         self._load_file()
+        self._docs_version()
+
         self._determine_type()
 
         self._extend_verbs()
@@ -70,6 +73,16 @@ class Generator:
                 self.docs = json.load(f)
             else:
                 self.docs = yaml.safe_load(f)
+
+    def _docs_version(self):
+        if "swagger" in self.docs and self.docs["swagger"].startswith("2.0"):
+            self.docs_type = "swagger"
+            self.output_path_openapi = os.path.join(self.output_folder, "swagger.yaml")
+        elif "openapi" in self.docs and self.docs["openapi"].startswith("3.0"):
+            self.docs_type = "openapi"
+            self.output_path_openapi = os.path.join(self.output_folder, "openapi.yaml")
+        else:
+            raise RuntimeError("Unsupported docs type. Supported: Swagger 2.0, OpenAPI 3.0")
 
     def _determine_type(self):
         if self.is_lambda_integration:
