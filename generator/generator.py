@@ -43,6 +43,9 @@ class Generator:
         self.backend_type = None
 
     def generate(self):
+        # Don't dump reference pointers
+        yaml.SafeDumper.ignore_aliases = lambda *args: True
+
         self._create_empty_output_folder()
         self._load_file()
         self._determine_type()
