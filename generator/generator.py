@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 
 import yaml
 
@@ -17,7 +18,11 @@ class Generator:
         self.backend_url = backend_url
         self.proxy = proxy
         self.vpc_link_id = vpc_link_id
-        self.cloudformation_path = os.path.abspath(os.path.join(CURRENT_FOLDER, "apigateway.yaml"))
+
+        self.output_folder = os.path.abspath(os.path.join(CURRENT_FOLDER, "out"))
+        self.output_path_sam = os.path.join(self.output_folder, "apigateway.yaml")
+        self.output_path_openapi = os.path.join(self.output_folder, "openapi.yaml")
+
         self.cloudformation = {
             "AWSTemplateFormatVersion": "2010-09-09",
             "Transform": "AWS::Serverless-2016-10-31",
@@ -38,12 +43,19 @@ class Generator:
         self.backend_type = None
 
     def generate(self):
+        self._create_empty_output_folder()
         self._load_file()
         self._determine_type()
 
         self._extend_verbs()
 
+        self._save_openapi()
         self._save_cloudformation()
+
+    def _create_empty_output_folder(self):
+        if os.path.isdir(self.output_folder):
+            shutil.rmtree(self.output_folder)
+        os.mkdir(self.output_folder)
 
     @property
     def is_lambda_integration(self):
@@ -114,10 +126,15 @@ class Generator:
 
         verb["x-amazon-apigateway-integration"] = integration
 
+    def _save_openapi(self):
+        with open(self.output_path_openapi, "w") as f:
+            yaml.safe_dump(self.docs, f, default_flow_style=False, sort_keys=False)
+        logger.info("Saved OpenAPI template with amazon extensions to: [%s]", self.output_path_openapi)
+
     def _save_cloudformation(self):
-        with open(self.cloudformation_path, "w") as f:
+        with open(self.output_path_sam, "w") as f:
             yaml.safe_dump(self.cloudformation, f, default_flow_style=False, sort_keys=False)
-        logger.info("Saved CloudFormation file to: [%s]", self.cloudformation_path)
+        logger.info("Saved SAM template file to: [%s]", self.output_path_sam)
 
 
 def main():
