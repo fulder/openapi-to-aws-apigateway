@@ -126,13 +126,10 @@ class Generator:
     def _create_integration(self, method: str, path: str, verb: dict, integration: dict):
         if self.is_lambda_integration:
             integration["httpMethod"] = "POST"
+            integration["uri"] = "${stageVariables.backendUrl}"
         else:
             integration["httpMethod"] = method
-
-        if self.is_lambda_integration:
-            integration["uri"] = self.backend_url
-        else:
-            integration["uri"] = "{}{}".format(self.backend_url, path)
+            integration["uri"] = "${stageVariables.backendUrl}" + path
 
         responses = verb.get("responses")
         if responses:
