@@ -1,7 +1,8 @@
 import logging
+import os
 import unittest
 
-from generator.generator import Generator
+from generator.generator import Generator, CURRENT_FOLDER
 
 logger = logging.getLogger("generator.generator")
 logger.addHandler(logging.StreamHandler())
@@ -125,4 +126,27 @@ class TestGenerator(unittest.TestCase):
         }
         self.assertEqual(exp_verb, verb)
 
+    def test_docs_version_swagger(self):
+        generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        generator.docs = {
+            "swagger": "2.0"
+        }
+        generator._docs_version()
+        self.assertEqual("swagger", generator.docs_type)
+        self.assertEqual(os.path.join(CURRENT_FOLDER, "out", "swagger.yaml"), generator.output_path_openapi)
 
+    def test_docs_version_openapi(self):
+        generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        generator.docs = {
+            "openapi": "3.0"
+        }
+        generator._docs_version()
+        self.assertEqual("openapi", generator.docs_type)
+        self.assertEqual(os.path.join(CURRENT_FOLDER, "out", "openapi.yaml"), generator.output_path_openapi)
+
+    def test_docs_version_unsupported(self):
+        generator = Generator("test_swagger.json", "http://my-backend", True, "")
+        generator.docs = {
+            "invalid": "2.0"
+        }
+        self.assertRaises(RuntimeError, generator._docs_version)
