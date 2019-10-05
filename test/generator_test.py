@@ -11,29 +11,29 @@ logger.setLevel("DEBUG")
 
 class TestGenerator(unittest.TestCase):
 
-    def test_determine_type_http(self):
+    def test_determine_backend_type_http(self):
         generator = Generator("test_swagger.json", "http://my-backend", False, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         self.assertEqual("http", generator.backend_type)
 
-    def test_determine_type_http_proxy(self):
+    def test_determine_backend_type_http_proxy(self):
         generator = Generator("test_swagger.json", "http://my-backend", True, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         self.assertEqual("http_proxy", generator.backend_type)
 
-    def test_determine_type_aws(self):
+    def test_determine_backend_type_aws(self):
         generator = Generator("test_swagger.json", "arn:test:lambda:arn", False, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         self.assertEqual("aws", generator.backend_type)
 
-    def test_determine_type_aws_proxy(self):
+    def test_determine_backend_type_aws_proxy(self):
         generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         self.assertEqual("aws_proxy", generator.backend_type)
 
     def test_init_integration_internet_type(self):
         generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         integration = generator._init_integration()
         exp_integration = {
             "responses": {},
@@ -45,7 +45,7 @@ class TestGenerator(unittest.TestCase):
 
     def test_init_integration_vpc_type(self):
         generator = Generator("test_swagger.json", "http://vpc_endpoint", True, "VPC_LINK_ID")
-        generator._determine_type()
+        generator._determine_backend_type()
         integration = generator._init_integration()
         exp_integration = {
             "responses": {},
@@ -58,7 +58,7 @@ class TestGenerator(unittest.TestCase):
 
     def test_create_integration_creates_correct_verb(self):
         generator = Generator("test_swagger.json", "http://my-backend", True, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         integration = generator._init_integration()
         verb = {}
         generator._create_integration("TEST_VERB", "/path1", verb, integration)
@@ -76,7 +76,7 @@ class TestGenerator(unittest.TestCase):
 
     def test_create_integration_with_lambda_creates_post_method(self):
         generator = Generator("test_swagger.json", "arn:lambda", True, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         integration = generator._init_integration()
         verb = {}
         generator._create_integration("TEST_VERB", "/path1", verb, integration)
@@ -94,7 +94,7 @@ class TestGenerator(unittest.TestCase):
 
     def test_create_integration_with_responses(self):
         generator = Generator("test_swagger.json", "http://my-backend", True, "")
-        generator._determine_type()
+        generator._determine_backend_type()
         integration = generator._init_integration()
         verb = {
             "responses": {

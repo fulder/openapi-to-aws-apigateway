@@ -51,7 +51,7 @@ class Generator:
         self._load_file()
         self._docs_version()
 
-        self._determine_type()
+        self._determine_backend_type()
 
         self._extend_verbs()
 
@@ -83,8 +83,9 @@ class Generator:
             self.output_path_openapi = os.path.join(self.output_folder, "openapi.yaml")
         else:
             raise RuntimeError("Unsupported docs type. Supported: Swagger 2.0, OpenAPI 3.0")
+        self.cloudformation["Resources"]["Api"]["Properties"]["DefinitionUri"] = os.path.abspath(self.output_path_openapi)
 
-    def _determine_type(self):
+    def _determine_backend_type(self):
         if self.is_lambda_integration:
             self.backend_type = "aws"
         else:
