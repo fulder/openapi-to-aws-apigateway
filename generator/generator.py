@@ -1,4 +1,5 @@
 import argparse
+import copy
 import json
 import logging
 import os
@@ -100,49 +101,19 @@ class Generator:
         logger.debug("Determined backend type as: [%s]", self.backend_type)
 
     def _extend_verbs(self):
-        integration = self._init_integration()
+
+        extended_docs = copy.deepcopy(self.docs)
 
         for p in self.docs["paths"]:
             for v in self.docs["paths"][p]:
                 verb = self.docs["paths"][p][v]
 
-                logger.debug("Adding integration to [%s %s]", v, p)
-                self._create_integration(v, p, verb, integration)
+                logger.debug("Extending verb for route [%s %s]", v, p)
 
-    def _init_integration(self) -> dict:
-        integration = {
-            "requestParameters": {},
-            "responses": {},
-            "type": self.backend_type
-        }
-        if self.vpc_link_id:
-            logger.debug("Adding connectionId: [%s] to all integrations", self.vpc_link_id)
-            integration["connectionId"] = self.vpc_link_id
-            integration["connectionType"] = "VPC_LINK"
-        else:
-            integration["connectionType"] = "INTERNET"
-        return integration
-
-    def _create_integration(self, method: str, path: str, verb: dict, integration: dict):
-        if self.is_lambda_integration:
-            integration["httpMethod"] = "POST"
-            integration["uri"] = "${stageVariables.backendUrl}"
-        else:
-            integration["httpMethod"] = method
-            integration["uri"] = "${stageVariables.backendUrl}" + path
-
-        responses = verb.get("responses")
-        if responses:
-            logger.debug("Adding responses for verb")
-
-            amz_responses = {}
-            for r in responses:
-                amz_responses[r] = {
-                    "statusCode": r
-                }
-            integration["responses"] = amz_responses
-
-        verb["x-amazon-apigateway-integration"] = integration
+                verb_extender = VerbExtender(v, verb, p,
+                                             self.backend_type, self.vpc_link_id, self.is_lambda_integration)
+                extended_docs["paths"][p][v] = verb_extender.extend()
+        self.docs = extended_docs
 
     def _save_openapi(self):
         with open(self.output_path_openapi, "w") as f:
@@ -153,6 +124,80 @@ class Generator:
         with open(self.output_path_sam, "w") as f:
             yaml.safe_dump(self.cloudformation, f, default_flow_style=False, sort_keys=False)
         logger.info("Saved SAM template file to: [%s]", self.output_path_sam)
+
+
+class VerbExtender:
+
+    def __init__(self, verb: str, verb_docs: dict, path: str, backend_type: str, vpc_link_id: str,
+                 is_lambda_integration: bool):
+        self.verb = verb
+        self.verb_docs = verb_docs
+        self.path = path
+        self.vpc_link_id = vpc_link_id
+        self.is_lambda_integration = is_lambda_integration
+        self.integration = {
+            "type": backend_type
+        }
+
+    def extend(self) -> dict:
+        self._init_integration()
+        self._create_integration()
+
+        return self.verb_docs
+
+    def _init_integration(self):
+        if self.vpc_link_id:
+            logger.debug("Adding connectionId: [%s] to integrations", self.vpc_link_id)
+            self.integration["connectionId"] = self.vpc_link_id
+            self.integration["connectionType"] = "VPC_LINK"
+        else:
+            self.integration["connectionType"] = "INTERNET"
+
+        if self.is_lambda_integration:
+            self.integration["httpMethod"] = "POST"
+            self.integration["uri"] = "${stageVariables.backendUrl}"
+        else:
+            self.integration["httpMethod"] = self.verb.upper()
+            self.integration["uri"] = "${stageVariables.backendUrl}" + self.path
+
+    def _create_integration(self):
+        self._add_requests()
+        self._add_responses()
+
+        self.verb_docs["x-amazon-apigateway-integration"] = self.integration
+
+    def _add_requests(self):
+        params = self.verb_docs.get("params")
+        if params:
+            self.integration["requestParameters"] = {}
+
+            for p in params:
+                integration_name = p.get("in")
+                param_name = p.get("name")
+
+                if integration_name == "query":
+                    # special case for query name, different in requestParameters compared to openapi spec
+                    integration_name = "querystring"
+
+                mapping_name = "integration.requests.{}.{}".format(integration_name, param_name)
+                mapping_value = "method.request.{}.{}".format(integration_name, param_name)
+                self.integration["requestParameters"][mapping_name] = mapping_value
+
+    def _add_responses(self):
+        responses = self.verb_docs.get("responses")
+        if responses:
+            self.integration["responses"] = {}
+            logger.debug("Adding responses for verb")
+
+            amz_responses = {}
+            for r in responses:
+                amz_responses[r] = {
+                    "statusCode": r,
+                    "responseParameters": {
+                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    }
+                }
+            self.integration["responses"] = amz_responses
 
 
 def main():
