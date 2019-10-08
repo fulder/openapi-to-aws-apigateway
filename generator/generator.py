@@ -101,7 +101,6 @@ class Generator:
         logger.debug("Determined backend type as: [%s]", self.backend_type)
 
     def _extend_verbs(self):
-
         extended_docs = copy.deepcopy(self.docs)
 
         for p in self.docs["paths"]:
@@ -109,10 +108,10 @@ class Generator:
                 verb = self.docs["paths"][p][v]
 
                 logger.debug("Extending verb for route [%s %s]", v, p)
-
                 verb_extender = VerbExtender(v, verb, p,
                                              self.backend_type, self.vpc_link_id, self.is_lambda_integration)
                 extended_docs["paths"][p][v] = verb_extender.extend()
+
         self.docs = extended_docs
 
     def _save_openapi(self):
@@ -167,7 +166,7 @@ class VerbExtender:
         self.verb_docs["x-amazon-apigateway-integration"] = self.integration
 
     def _add_requests(self):
-        params = self.verb_docs.get("params")
+        params = self.verb_docs.get("parameters")
         if params:
             self.integration["requestParameters"] = {}
 
@@ -175,12 +174,17 @@ class VerbExtender:
                 integration_name = p.get("in")
                 param_name = p.get("name")
 
+                if integration_name not in ["query", "path", "header"]:
+                    logger.debug("Skipping verb parameter with integration name: [%s]", integration_name)
+                    continue
+
                 if integration_name == "query":
                     # special case for query name, different in requestParameters compared to openapi spec
                     integration_name = "querystring"
 
                 mapping_name = "integration.requests.{}.{}".format(integration_name, param_name)
                 mapping_value = "method.request.{}.{}".format(integration_name, param_name)
+                logger.info("Mapping: [%s] to [%s] in requestParameters", mapping_name, mapping_value)
                 self.integration["requestParameters"][mapping_name] = mapping_value
 
     def _add_responses(self):
