@@ -11,92 +11,79 @@ logger.setLevel("DEBUG")
 
 class TestGenerator(unittest.TestCase):
 
+    def setUp(self) -> None:
+        self.generator = Generator("test_swagger.json", "http://my-backend", False, "", "eu-west-1")
+
     def test_determine_backend_type_http(self):
-        generator = Generator("test_swagger.json", "http://my-backend", False, "", "eu-west-1")
-        generator._determine_backend_type()
-        self.assertEqual("http", generator.backend_type)
+        self.generator._determine_backend_type()
+        self.assertEqual("http", self.generator.backend_type)
 
     def test_determine_backend_type_http_proxy(self):
-        generator = Generator("test_swagger.json", "http://my-backend", True, "", "eu-west-1")
-        generator._determine_backend_type()
-        self.assertEqual("http_proxy", generator.backend_type)
+        self.generator.proxy = True
+        self.generator._determine_backend_type()
+        self.assertEqual("http_proxy", self.generator.backend_type)
 
     def test_determine_backend_type_aws(self):
-        generator = Generator("test_swagger.json", "arn:test:lambda:arn", False, "", "eu-west-1")
-        generator._determine_backend_type()
-        self.assertEqual("aws", generator.backend_type)
+        self.generator.backend_url = "arn:test:lambda:arn"
+        self.generator._determine_backend_type()
+        self.assertEqual("aws", self.generator.backend_type)
 
     def test_determine_backend_type_aws_proxy(self):
-        generator = Generator("test_swagger.json", "arn:test:lambda:arn", True, "", "eu-west-1")
-        generator._determine_backend_type()
-        self.assertEqual("aws_proxy", generator.backend_type)
-
-    def test_init_integration_internet_type(self):
-        verb_extender = VerbExtender("get", {}, "/path1", "aws_proxy", "", True, "TEST_URI_START")
-        verb_extender._init_integration()
-        exp_verb = {
-            "connectionType": "INTERNET",
-            "httpMethod": "POST",
-            "type": "aws_proxy",
-            "uri": "TEST_URI_START"
-        }
-        self.assertEqual(exp_verb, verb_extender.integration)
-
-    def test_init_integration_vpc_type(self):
-        verb_extender = VerbExtender("get", {}, "/path1", "http_proxy", "VPC_LINK_ID", True, "TEST_URI_START")
-        verb_extender._init_integration()
-        exp_verb = {
-            "connectionId": "VPC_LINK_ID",
-            "connectionType": "VPC_LINK",
-            "httpMethod": "POST",
-            "type": "http_proxy",
-            "uri": "TEST_URI_START"
-        }
-        self.assertEqual(exp_verb, verb_extender.integration)
-
-    def test_init_integration_creates_correct_verb(self):
-        verb_extender = VerbExtender("get", {}, "/path1", "http_proxy", "", False, "http://${stageVariables.httpHost}")
-        verb_extender._init_integration()
-        exp_verb = {
-            "connectionType": "INTERNET",
-            "httpMethod": "GET",
-            "type": "http_proxy",
-            "uri": "http://${stageVariables.httpHost}/path1"
-        }
-        self.assertEqual(exp_verb, verb_extender.integration)
-
-    def test_init_integration_with_lambda_creates_post_method(self):
-        verb_extender = VerbExtender("get", {}, "/path1", "aws", "", True, "TEST_START_URL")
-        verb_extender._init_integration()
-        exp_verb = {
-            "connectionType": "INTERNET",
-            "httpMethod": "POST",
-            "type": "aws",
-            "uri": "TEST_START_URL"
-        }
-        self.assertEqual(exp_verb, verb_extender.integration)
+        self.generator.backend_url = "arn:test:lambda:arn"
+        self.generator.proxy = True
+        self.generator._determine_backend_type()
+        self.assertEqual("aws_proxy", self.generator.backend_type)
 
     def test_docs_version_swagger(self):
-        generator = Generator("test_swagger.json", "http://my-backend", True, "", "eu-west-1")
-        generator.docs = {
+        self.generator.docs = {
             "swagger": "2.0"
         }
-        generator._docs_version()
-        self.assertEqual("swagger", generator.docs_type)
-        self.assertEqual(os.path.join(CURRENT_FOLDER, "out", "swagger.yaml"), generator.output_path_openapi)
+        self.generator._docs_version()
+        self.assertEqual("swagger", self.generator.docs_type)
+        self.assertEqual(os.path.join(CURRENT_FOLDER, "out", "swagger.yaml"), self.generator.output_path_openapi)
 
     def test_docs_version_openapi(self):
-        generator = Generator("test_swagger.json", "http://my-backend", True, "", "eu-west-1")
-        generator.docs = {
+        self.generator.docs = {
             "openapi": "3.0"
         }
-        generator._docs_version()
-        self.assertEqual("openapi", generator.docs_type)
-        self.assertEqual(os.path.join(CURRENT_FOLDER, "out", "openapi.yaml"), generator.output_path_openapi)
+        self.generator._docs_version()
+        self.assertEqual("openapi", self.generator.docs_type)
+        self.assertEqual(os.path.join(CURRENT_FOLDER, "out", "openapi.yaml"), self.generator.output_path_openapi)
 
     def test_docs_version_unsupported(self):
-        generator = Generator("test_swagger.json", "http://my-backend", True, "", "eu-west-1")
-        generator.docs = {
+        self.generator.docs = {
             "invalid": "2.0"
         }
-        self.assertRaises(RuntimeError, generator._docs_version)
+        self.assertRaises(RuntimeError, self.generator._docs_version)
+
+    def test_create_backend_uri_start_lambda_with_version(self):
+        self.generator.backend_url = "arn:aws:lambda::123123:function:TEST_NAME:TEST_VERSION"
+        self.generator.apigateway_region = "eu-west-1"
+        self.generator._create_backend_uri_start()
+        exp = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda::123123:function:TEST_NAME:${stageVariables.lambdaVersion}/invocations"
+        self.assertEqual(exp, self.generator.backend_uri_start)
+        self.assertIn("lambdaVersion", self.generator.stage_variables)
+        self.assertEqual("TEST_VERSION", self.generator.stage_variables["lambdaVersion"])
+
+    def test_create_backend_uri_start_lambda_name(self):
+        self.generator.backend_url = "arn:aws:lambda::123123:function:TEST_NAME"
+        self.generator.apigateway_region = "eu-west-1"
+        self.generator._create_backend_uri_start()
+        exp = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda::123123:function:${stageVariables.lambdaName}/invocations"
+        self.assertEqual(exp, self.generator.backend_uri_start)
+        self.assertIn("lambdaName", self.generator.stage_variables)
+        self.assertEqual("TEST_NAME", self.generator.stage_variables["lambdaName"])
+
+    def test_create_backend_uri_invalid_arn_raises_runtime(self):
+        self.generator.backend_url = "arn:aws:lam:INVALID"
+        self.generator.apigateway_region = "eu-west-1"
+        self.assertRaises(RuntimeError, self.generator._create_backend_uri_start)
+
+    def test_create_backend_uri_start_http(self):
+        self.generator.backend_url = "http://my-backend.com"
+        self.generator._create_backend_uri_start()
+        exp = "http://${stageVariables.httpHost}"
+        self.assertEqual(exp, self.generator.backend_uri_start)
+        self.assertIn("httpHost", self.generator.stage_variables)
+        self.assertEqual("my-backend.com", self.generator.stage_variables["httpHost"])
+
