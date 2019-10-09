@@ -96,7 +96,8 @@ class Generator:
             m1 = re.search(r"(arn:aws:lambda::\d+:function:\w+:)(\w+)", self.backend_url)
             m2 = re.search(r"(arn:aws:lambda::\d+:function:)(\w+)", self.backend_url)
 
-            self.backend_uri_start = "arn:aws:apigateway:{}:lambda:path/2015-03-31/functions/".format(self.apigateway_region)
+            self.backend_uri_start = "arn:aws:apigateway:{}:lambda:path/2015-03-31/functions/".format(
+                self.apigateway_region)
 
             if m1:
                 logger.info("Setting 'lambdaVersion' stageVariable to: [%s]", m1.group(2))
