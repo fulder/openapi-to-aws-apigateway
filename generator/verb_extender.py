@@ -81,3 +81,12 @@ class VerbExtender:
                     }
                 }
             self.integration["responses"] = amz_responses
+
+        for r in responses:
+            if "headers" not in self.verb_docs["responses"][r]:
+                self.verb_docs["responses"][r]["headers"] = {}
+
+            self.verb_docs["responses"][r]["headers"]["Access-Control-Allow-Origin"] = {
+                "type": "string",
+                "description": "CORS origin header added by openapi-extender"
+            }
