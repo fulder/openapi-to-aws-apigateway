@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+import shutil
 import unittest
 
 from generator.generator import Generator, CURRENT_FOLDER, VerbExtender
@@ -12,7 +14,15 @@ logger.setLevel("DEBUG")
 class TestGenerator(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.generator = Generator("test_swagger.json", "http://my-backend", False, "", "eu-west-1")
+        self.current_folder = os.path.dirname(os.path.realpath(__file__))
+        self.input_file = os.path.join(self.current_folder, "petshop.json")
+        self.generator = Generator(self.input_file, "http://petstore.execute-api.eu-west-1.amazonaws.com/petstore", False, "", "eu-west-1")
+
+    def test_generate_petshop(self):
+        self.generator.generate()
+        with open(os.path.join(self.current_folder, "petshop_extended.json")) as f:
+            exp = json.load(f)
+        self.assertEqual(exp, self.generator.docs)
 
     def test_determine_backend_type_http(self):
         self.generator._determine_backend_type()
