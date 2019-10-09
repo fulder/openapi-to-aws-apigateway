@@ -96,3 +96,7 @@ class TestGenerator(unittest.TestCase):
         self.assertEqual(exp, self.generator.backend_uri_start)
         self.assertIn("httpHost", self.generator.stage_variables)
         self.assertEqual("my-backend.com", self.generator.stage_variables["httpHost"])
+
+    def tearDown(self) -> None:
+        if os.path.isdir(self.generator.output_folder):
+            shutil.rmtree(self.generator.output_folder)
