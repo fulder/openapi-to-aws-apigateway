@@ -3,7 +3,9 @@ import copy
 import json
 import logging
 import os
+import re
 import shutil
+from urllib.parse import urlparse
 
 import yaml
 
@@ -14,11 +16,12 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path: str, backend_url: str, proxy: bool, vpc_link_id: str):
+    def __init__(self, openapi_path: str, backend_url: str, proxy: bool, vpc_link_id: str, apigateway_region: str):
         self.openapi_path = openapi_path
         self.backend_url = backend_url
         self.proxy = proxy
         self.vpc_link_id = vpc_link_id
+        self.apigateway_region = apigateway_region
 
         self.output_folder = os.path.abspath(os.path.join(CURRENT_FOLDER, "out"))
         self.output_path_sam = os.path.join(self.output_folder, "apigateway.yaml")
@@ -27,6 +30,7 @@ class Generator:
         # Created by helper funcs during generate
         self.docs = None
         self.backend_type = None
+        self.backend_uri_start = None
         self.docs_type = None
         self.output_path_openapi = None
         self.cloudformation = None
@@ -38,9 +42,11 @@ class Generator:
         self._create_empty_output_folder()
         self._load_file()
         self._docs_version()
-        self._init_sam_template()
 
         self._determine_backend_type()
+        self._create_backend_uri_start()
+
+        self._init_sam_template()
 
         self._extend_verbs()
 
@@ -100,6 +106,29 @@ class Generator:
             self.backend_type += "_proxy"
         logger.debug("Determined backend type as: [%s]", self.backend_type)
 
+    def _create_backend_uri_start(self):
+        if self.is_lambda_integration:
+            m1 = re.search(r"(arn:aws:lambda::\d+:function:\w+):(\w+)", self.backend_url)
+            m2 = re.search(r"(arn:aws:lambda::\d+:function:)(\w+)", self.backend_url)
+
+            self.backend_uri_start = "arn:aws:apigateway:{}:lambda:path/2015-03-31/functions/".format(self.apigateway_region)
+
+            if m1:
+                logger.info("Setting 'lambdaVersion' stageVariable to: [%s]", m1.group(2))
+                self.backend_uri_start += m1.group(1) + "${stageVariables.lambdaVersion}" + "/invocations"
+                self.stage_variables["lambdaVersion"] = m1.group(2)
+            elif m2:
+                logger.info("Setting 'lambdaName' stageVariable to [%s]", m2.group(2))
+                self.backend_uri_start += m2.group(1) + "${stageVariables.lambdaName}" + "/invocations"
+                self.stage_variables["lambdaName"] = m2.group(2)
+            else:
+                raise RuntimeError("Invalid lambda ARN")
+        else:
+            parsed_url = urlparse(self.backend_url)
+            logger.info("Setting 'httpHost' stageVariable to [%s]", parsed_url.hostname)
+            self.backend_uri_start = "http://" + "${stageVariables.httpHost}"
+            self.stage_variables["httpHost"] = parsed_url.hostname
+
     def _extend_verbs(self):
         extended_docs = copy.deepcopy(self.docs)
 
@@ -108,8 +137,8 @@ class Generator:
                 verb = self.docs["paths"][p][v]
 
                 logger.debug("Extending verb for route [%s %s]", v, p)
-                verb_extender = VerbExtender(v, verb, p,
-                                             self.backend_type, self.vpc_link_id, self.is_lambda_integration)
+                verb_extender = VerbExtender(v, verb, p, self.backend_type, self.vpc_link_id,
+                                             self.is_lambda_integration, self.backend_uri_start)
                 extended_docs["paths"][p][v] = verb_extender.extend()
 
         self.docs = extended_docs
@@ -128,7 +157,7 @@ class Generator:
 class VerbExtender:
 
     def __init__(self, verb: str, verb_docs: dict, path: str, backend_type: str, vpc_link_id: str,
-                 is_lambda_integration: bool):
+                 is_lambda_integration: bool, backend_url_start: str):
         self.verb = verb
         self.verb_docs = verb_docs
         self.path = path
@@ -137,6 +166,7 @@ class VerbExtender:
         self.integration = {
             "type": backend_type
         }
+        self.backend_url_start = backend_url_start
 
     def extend(self) -> dict:
         self._init_integration()
@@ -154,10 +184,10 @@ class VerbExtender:
 
         if self.is_lambda_integration:
             self.integration["httpMethod"] = "POST"
-            self.integration["uri"] = "${stageVariables.backendUrl}"
+            self.integration["uri"] = self.backend_url_start
         else:
             self.integration["httpMethod"] = self.verb.upper()
-            self.integration["uri"] = "${stageVariables.backendUrl}" + self.path
+            self.integration["uri"] = self.backend_url_start + self.path
 
     def _create_integration(self):
         self._add_requests()
@@ -212,14 +242,16 @@ def main():
                         help="Backend URL to forward the requests to (use ARN for lambda backend)")
 
     # Optional params
+    parser.add_argument("--apigateway_region", "-r", required=False,
+                        help="Region where ApiGateway will be deployed. Only needed for lambda integration")
     parser.add_argument("--proxy", "-p", required=False, action="store_true", help="Proxy all requests to the backend")
     parser.add_argument("--vpc_link_id", "-v", required=False, help="If backend is an VPC link, provide the link ID")
     args = parser.parse_args()
-    generator = Generator(args.file, args.backend_url, args.proxy, args.vpc_link_id)
+    generator = Generator(args.file, args.backend_url, args.proxy, args.vpc_link_id, args.apigateway_region)
     generator.generate()
 
 
 if __name__ == "__main__":
     logger.addHandler(logging.StreamHandler())
-    logger.setLevel("INFO")
+    logger.setLevel("DEBUG")
     main()
