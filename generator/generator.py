@@ -93,7 +93,7 @@ class Generator:
 
     def _create_backend_uri_start(self):
         if self.is_lambda_integration:
-            m1 = re.search(r"(arn:aws:lambda::\d+:function:\w+):(\w+)", self.backend_url)
+            m1 = re.search(r"(arn:aws:lambda::\d+:function:\w+:)(\w+)", self.backend_url)
             m2 = re.search(r"(arn:aws:lambda::\d+:function:)(\w+)", self.backend_url)
 
             self.backend_uri_start = "arn:aws:apigateway:{}:lambda:path/2015-03-31/functions/".format(self.apigateway_region)
