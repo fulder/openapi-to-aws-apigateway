@@ -24,5 +24,5 @@ def main():
 if __name__ == "__main__":
     logger = logging.getLogger("generator")
     logger.addHandler(logging.StreamHandler())
-    logger.setLevel("DEBUG")
+    logger.setLevel("INFO")
     main()

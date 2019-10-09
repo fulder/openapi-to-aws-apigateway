@@ -61,7 +61,7 @@ class VerbExtender:
                     # special case for query name, different in requestParameters compared to openapi spec
                     integration_name = "querystring"
 
-                mapping_name = "integration.requests.{}.{}".format(integration_name, param_name)
+                mapping_name = "integration.request.{}.{}".format(integration_name, param_name)
                 mapping_value = "method.request.{}.{}".format(integration_name, param_name)
                 logger.info("Mapping: [%s] to [%s] in requestParameters", mapping_name, mapping_value)
                 self.integration["requestParameters"][mapping_name] = mapping_value
