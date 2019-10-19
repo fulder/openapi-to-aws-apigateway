@@ -11,4 +11,4 @@ python:
 install:
   - pip install -r requirements-dev.txt
 script:
-  - pytest --log-level DEBUG test/ --cov=generator
+  - PYTHONPATH=. pytest --log-level DEBUG test/ --cov=generator
