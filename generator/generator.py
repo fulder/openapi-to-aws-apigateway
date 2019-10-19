@@ -4,7 +4,12 @@ import logging
 import os
 import re
 import shutil
-from urllib.parse import urlparse
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    # Python2 only
+     from urlparse import urlparse
 
 import yaml
 
