@@ -1,1 +1,2 @@
 [![Build Status](https://travis-ci.com/fulder/openapi-to-aws-apigateway.svg?branch=master)](https://travis-ci.com/fulder/openapi-to-aws-apigateway)
+[![Coverage Status](https://coveralls.io/repos/github/fulder/openapi-to-aws-apigateway/badge.svg?branch=master)](https://coveralls.io/github/fulder/openapi-to-aws-apigateway?branch=master)
