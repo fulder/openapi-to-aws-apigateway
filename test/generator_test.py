@@ -22,6 +22,7 @@ class TestGenerator(unittest.TestCase):
         self.generator.generate()
         with open(os.path.join(self.current_folder, "petshop_extended.json")) as f:
             exp = json.load(f)
+        self.maxDiff = None
         self.assertEqual(exp, self.generator.docs)
 
     def test_determine_backend_type_http(self):

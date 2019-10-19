@@ -31,7 +31,7 @@
               },
               "Access-Control-Allow-Origin": {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
               }
             }
           }
@@ -86,7 +86,7 @@
             "headers": {
               "Access-Control-Allow-Origin": {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
               }
             }
           }
@@ -141,7 +141,7 @@
             "headers": {
               "Access-Control-Allow-Origin": {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
               }
             }
           }
@@ -178,7 +178,7 @@
             "headers": {
               "Access-Control-Allow-Origin": {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
               },
               "Access-Control-Allow-Methods": {
                 "type": "string",
@@ -235,7 +235,7 @@
             "headers": {
               "Access-Control-Allow-Origin": {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
               }
             }
           }
@@ -283,7 +283,7 @@
             "headers": {
               "Access-Control-Allow-Origin": {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
               },
               "Access-Control-Allow-Methods": {
                 "type": "string",

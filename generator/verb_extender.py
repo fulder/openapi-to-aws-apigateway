@@ -88,5 +88,5 @@ class VerbExtender:
 
             self.verb_docs["responses"][r]["headers"]["Access-Control-Allow-Origin"] = {
                 "type": "string",
-                "description": "CORS origin header added by openapi-extender"
+                "description": "CORS origin header added by openapi-aws-apigateway-generator"
             }
