@@ -2,7 +2,7 @@ import logging
 import os
 import unittest
 
-from generator.generator import Generator, CURRENT_FOLDER, VerbExtender
+from generator.generator import VerbExtender
 
 logger = logging.getLogger("generator.verb_extender")
 logger.addHandler(logging.StreamHandler())

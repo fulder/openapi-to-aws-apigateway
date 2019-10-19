@@ -13,7 +13,7 @@ logger.setLevel("DEBUG")
 
 class TestGenerator(unittest.TestCase):
 
-    def setUp(self) -> None:
+    def setUp(self):
         self.current_folder = os.path.dirname(os.path.realpath(__file__))
         self.input_file = os.path.join(self.current_folder, "petshop.json")
         self.generator = Generator(self.input_file, "http://petstore.execute-api.eu-west-1.amazonaws.com/petstore", False, "", "eu-west-1")
@@ -98,6 +98,6 @@ class TestGenerator(unittest.TestCase):
         self.assertIn("httpHost", self.generator.stage_variables)
         self.assertEqual("my-backend.com", self.generator.stage_variables["httpHost"])
 
-    def tearDown(self) -> None:
+    def tearDown(self):
         if os.path.isdir(self.generator.output_folder):
             shutil.rmtree(self.generator.output_folder)

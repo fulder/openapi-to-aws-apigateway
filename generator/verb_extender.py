@@ -5,8 +5,7 @@ logger = logging.getLogger(__name__)
 
 class VerbExtender:
 
-    def __init__(self, verb: str, verb_docs: dict, path: str, backend_type: str, vpc_link_id: str,
-                 is_lambda_integration: bool, backend_url_start: str):
+    def __init__(self, verb, verb_docs, path, backend_type, vpc_link_id, is_lambda_integration, backend_url_start):
         self.verb = verb
         self.verb_docs = verb_docs
         self.path = path
@@ -17,7 +16,7 @@ class VerbExtender:
         }
         self.backend_url_start = backend_url_start
 
-    def extend(self) -> dict:
+    def extend(self):
         self._init_integration()
         self._create_integration()
 

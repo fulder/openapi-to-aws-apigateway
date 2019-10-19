@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path: str, backend_url: str, proxy: bool, vpc_link_id: str, apigateway_region: str):
+    def __init__(self, openapi_path, backend_url, proxy, vpc_link_id, apigateway_region):
         self.openapi_path = openapi_path
         self.backend_url = backend_url
         self.proxy = proxy
