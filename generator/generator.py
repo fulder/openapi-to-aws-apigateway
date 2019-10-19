@@ -13,7 +13,7 @@ except ImportError:
 
 import yaml
 
-from generator.verb_extender import VerbExtender
+from .verb_extender import VerbExtender
 
 CURRENT_FOLDER = os.path.dirname(os.path.realpath(__file__))
 
