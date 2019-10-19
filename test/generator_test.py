@@ -4,7 +4,7 @@ import os
 import shutil
 import unittest
 
-from generator.generator import Generator, CURRENT_FOLDER, VerbExtender
+from generator.generator import Generator, CURRENT_FOLDER
 
 logger = logging.getLogger("generator.generator")
 logger.addHandler(logging.StreamHandler())
