@@ -1,5 +1,4 @@
 import logging
-import os
 import unittest
 
 from generator.generator import VerbExtender
