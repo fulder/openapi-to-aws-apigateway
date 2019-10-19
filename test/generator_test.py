@@ -26,6 +26,16 @@ class TestGenerator(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(exp, self.generator.docs)
 
+    def test_create_empty_output_folder(self):
+        self.generator._create_empty_output_folder()
+        self.assertTrue(os.path.isdir(self.generator.output_folder))
+
+    def test_create_empty_output_folder_twice(self):
+        self.generator._create_empty_output_folder()
+        self.assertTrue(os.path.isdir(self.generator.output_folder))
+        self.generator._create_empty_output_folder()
+        self.assertTrue(os.path.isdir(self.generator.output_folder))
+
     def test_determine_backend_type_http(self):
         self.generator._determine_backend_type()
         self.assertEqual("http", self.generator.backend_type)
