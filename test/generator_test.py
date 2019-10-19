@@ -16,7 +16,8 @@ class TestGenerator(unittest.TestCase):
     def setUp(self):
         self.current_folder = os.path.dirname(os.path.realpath(__file__))
         self.input_file = os.path.join(self.current_folder, "petshop.json")
-        self.generator = Generator(self.input_file, "http://petstore.execute-api.eu-west-1.amazonaws.com/petstore", False, "", "eu-west-1")
+        self.generator = Generator(self.input_file, "http://petstore.execute-api.eu-west-1.amazonaws.com/petstore",
+                                   False, "", "eu-west-1")
 
     def test_generate_petshop(self):
         self.generator.generate()

@@ -9,7 +9,7 @@ try:
     from urllib.parse import urlparse
 except ImportError:
     # Python2 only
-     from urlparse import urlparse
+    from urlparse import urlparse
 
 import yaml
 
