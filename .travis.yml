@@ -9,16 +9,6 @@ script:
 
 jobs:
   include:
-  # test
-  - python: 3.4
-  - python: 3.5
-  - python: 3.6
-  - python: 3.7
-  - python: 3.7-dev
-  - python: 3.8-dev
-  - python: nightly
-
-  # coverage
   - stage: test
     python: 2.7
     install:
@@ -26,6 +16,13 @@ jobs:
       - pip install coveralls
     after_success:
       - coveralls
+  - python: 3.4
+  - python: 3.5
+  - python: 3.6
+  - python: 3.7
+  - python: 3.7-dev
+  - python: 3.8-dev
+  - python: nightly
   - stage: test
     python: 3.8
     install:
@@ -34,7 +31,6 @@ jobs:
     after_success:
     - coveralls
 
-  # deploy
   - stage: deploy
     python: 3.8
     install: skip
