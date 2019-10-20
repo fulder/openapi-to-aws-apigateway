@@ -42,6 +42,7 @@ class Generator:
 
         # Created by helper funcs during generate
         self.docs = None
+        self.extended_docs = None
         self.backend_type = None
         self.backend_uri_start = None
         self.docs_type = None
@@ -61,17 +62,13 @@ class Generator:
 
         self._init_sam_template()
 
-        extended_docs = copy.deepcopy(self.docs)
-
         for p in self.docs["paths"]:
-            path_docs = extended_docs["paths"][p]
+            path_docs = self.extended_docs["paths"][p]
 
             for v in self.docs["paths"][p]:
-                extended_docs["paths"][p][v] = self._extend_verbs(p, v)
+                self.extended_docs["paths"][p][v] = self._extend_verbs(p, v)
 
             self._enable_cors(path_docs)
-
-        self.docs = extended_docs
 
         self._remove_unsupported_model_properties()
 
@@ -93,6 +90,7 @@ class Generator:
                 self.docs = json.load(f)
             else:
                 self.docs = yaml.safe_load(f)
+        self.extended_docs = copy.deepcopy(self.docs)
 
     def _docs_version(self):
         if "swagger" in self.docs and self.docs["swagger"].startswith("2.0"):
@@ -204,6 +202,11 @@ class Generator:
             }
         }
 
+    def _add_security(self):
+        #TODO add correct security
+        if "securityDefinitions" in self.docs:
+            del self.extended_docs["securityDefinitions"]
+
     def _remove_unsupported_model_properties(self):
         """
         Removing unsupported properties see:
@@ -214,10 +217,8 @@ class Generator:
             logger.debug("No definitions in docs")
             return
 
-        extended_docs = copy.deepcopy(self.docs)
-
         for d in self.docs["definitions"]:
-            def_docs = extended_docs["definitions"][d]
+            def_docs = self.extended_docs["definitions"][d]
             if def_docs.get("xml"):
                 logger.info("Removing unsupported xml in definition [%s]", d)
                 del def_docs["xml"]
@@ -236,11 +237,9 @@ class Generator:
                     logger.info("Removing unsupported example in definition [%s] property [%s]", d, prop)
                     del properties[prop]["example"]
 
-        self.docs = extended_docs
-
     def _save_openapi(self):
         with open(self.output_path_openapi, "w") as f:
-            yaml.safe_dump(self.docs, f, default_flow_style=False, sort_keys=False)
+            yaml.safe_dump(self.extended_docs, f, default_flow_style=False, sort_keys=False)
         logger.info("Saved OpenAPI template with amazon extensions to: [%s]", self.output_path_openapi)
 
     def _save_cloudformation(self):
