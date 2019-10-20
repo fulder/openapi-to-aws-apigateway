@@ -1,7 +1,6 @@
 language: python
 stages:
 - test
-- coverage
 - deploy
 install:
 - pip install -r requirements-dev.txt
@@ -20,14 +19,14 @@ jobs:
   - python: nightly
 
   # coverage
-  - stage: coverage
+  - stage: test
     python: 2.7
     install:
       - pip install -r requirements-dev.txt
       - pip install coveralls
     after_success:
       - coveralls
-  - stage: coverage
+  - stage: test
     python: 3.8
     install:
     - pip install -r requirements-dev.txt
