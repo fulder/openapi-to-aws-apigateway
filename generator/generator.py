@@ -16,13 +16,19 @@ import yaml
 from .verb_extender import VerbExtender
 
 CURRENT_FOLDER = os.path.dirname(os.path.realpath(__file__))
-CORS_MAPPING_TEMPLATE_OPTIONS = """
-#if ($input.params("Origin") !="" && $stageVariables.CORS_ORIGINS != "" && $input.params("Origin") in $stageVariables.CORS_ORIGINS.split(","))
-    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params("Origin")
-    #$context.responseOverride.header.Access-Control-Allow-Headers={headers}
-    #$context.responseOverride.header.Access-Control-Allow-Methods={methods}
+CORS_MAPPING_TEMPLATE_OPTIONS = """\
+#if($input.params("Origin") !="" && $stageVariables.CORS_ORIGINS != "" && $stageVariables.CORS_ORIGINS.split(",").contains($input.params("Origin")))
+#set($context.responseOverride.header.Access-Control-Allow-Origin=$input.params("Origin"))
+#set($context.responseOverride.header.Access-Control-Allow-Methods="{methods}")
+{allowed_headers_cases}\
 #end
-""".replace("\n", "")
+"""
+
+CORS_MAPPING_ALLOWED_HEADERS = """\
+#if($input.params("Access-Control-Request-Method")=="{method}")
+#set($context.responseOverride.header.Access-Control-Allow-Headers="{headers}")
+#end
+"""
 
 logger = logging.getLogger(__name__)
 
@@ -167,6 +173,25 @@ class Generator:
         return verb_extender.extend()
 
     def _enable_cors(self, path_docs):
+        allowed_methods = []
+        allowed_headers = []
+        for v in path_docs:
+            allowed_methods.append(v.upper())
+
+            if "parameters" in path_docs[v]:
+                headers_list = []
+                for i in range(0, len(path_docs[v]["parameters"])):
+                    if path_docs[v]["parameters"][i]["in"] == "header":
+                        headers_list.append(path_docs[v]["parameters"][i]["name"])
+
+                if headers_list:
+                    template_if = CORS_MAPPING_ALLOWED_HEADERS.format(method=v.upper(), headers=",".join(headers_list))
+                    allowed_headers.append(template_if)
+
+        methods = ",".join(allowed_methods)
+        allowed_headers_cases = "".join(allowed_headers)
+        mapping_template_script = CORS_MAPPING_TEMPLATE_OPTIONS.format(methods=methods, allowed_headers_cases=allowed_headers_cases)
+
         path_docs["options"] = {
             "summary": "CORS support",
             "description": "Enable CORS by returning correct headers",
@@ -181,17 +206,20 @@ class Generator:
             ],
             "x-amazon-apigateway-integration": {
                 "type": "mock",
+                "requestTemplates": {
+                    "application/json": '{"statusCode": 204}'
+                },
                 "responses": {
-                    "200": {
-                        "statusCode": "200",
+                    "204": {
+                        "statusCode": "204",
                         "responseTemplates": {
-                            "application/json": CORS_MAPPING_TEMPLATE_OPTIONS
+                            "application/json": mapping_template_script
                         }
                     }
                 }
             },
             "responses": {
-                "200": {
+                "204": {
                     "description": "Default response for CORS method",
                     "headers": {
                         "Access-Control-Allow-Headers": {
@@ -209,7 +237,7 @@ class Generator:
         }
 
     def _add_security(self):
-        #TODO add correct security
+        # TODO add correct security
         if "securityDefinitions" in self.docs:
             del self.extended_docs["securityDefinitions"]
 

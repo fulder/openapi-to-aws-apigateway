@@ -35,7 +35,7 @@ class VerbExtender:
         if "parameters" in self.verb_docs:
             unsup_in = ["formData"]
 
-            for i in range(0, len(self.verb_docs["parameters"]) - 1):
+            for i in range(0, len(self.verb_docs["parameters"])):
                 param = self.verb_docs["parameters"][i]
                 if param.get("in") in unsup_in:
                     raise RuntimeError("Unsupported parameter with 'in': [{}]".format(param.get("in")))
