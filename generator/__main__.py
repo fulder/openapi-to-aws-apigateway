@@ -7,7 +7,11 @@ from .generator import Generator
 
 def main():
     logger = logging.getLogger("generator")
-    logger.addHandler(logging.StreamHandler())
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
     logger.setLevel("INFO")
 
     parser = argparse.ArgumentParser(description="Generate AWS ApiGateway SAM template from OpenAPI specification")
@@ -24,7 +28,7 @@ def main():
     parser.add_argument("--proxy", "-p", required=False, action="store_true", help="Proxy all requests to the backend")
     parser.add_argument("--vpc_link_id", "-v", required=False, help="If backend is an VPC link, provide the link ID")
     parser.add_argument("--debug", "-d", required=False, action="store_true", help="Turn on debug logs")
-    parser.add_argument("--fail_on_error", "-f", required=False, action="store_true",
+    parser.add_argument("--fail_on_error", "-e", required=False, action="store_true",
                         help="Raise exception on e.g. unsupported verb properties")
     args = parser.parse_args()
 
