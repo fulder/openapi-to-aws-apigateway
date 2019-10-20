@@ -23,7 +23,8 @@ class TestGenerator(unittest.TestCase):
         self.generator.generate()
         with open(os.path.join(self.current_folder, "petshop_extended.json")) as f:
             exp = json.load(f)
-        self.maxDiff = None
+        #self.maxDiff = None
+        print(self.generator.docs)
         self.assertEqual(exp, self.generator.docs)
 
     def test_create_empty_output_folder(self):
