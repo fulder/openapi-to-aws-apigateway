@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="oai-sam-api",
-    version="0.0.1",
+    version="0.0.2",
     author="Michal Sadowski",
     entry_points={
         "console_scripts": [

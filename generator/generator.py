@@ -37,12 +37,13 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path, backend_url, proxy, vpc_link_id, apigateway_region, cors_origins):
+    def __init__(self, openapi_path, backend_url, proxy, vpc_link_id, apigateway_region, cors_origins, fail_on_error):
         self.openapi_path = openapi_path
         self.backend_url = backend_url
         self.proxy = proxy
         self.vpc_link_id = vpc_link_id
         self.apigateway_region = apigateway_region
+        self.fail_on_error = fail_on_error
 
         self.output_folder = os.path.abspath(os.path.join(CURRENT_FOLDER, "out"))
         self.output_path_sam = os.path.join(self.output_folder, "apigateway.yaml")
@@ -181,7 +182,7 @@ class Generator:
         verb_docs = self.docs["paths"][p][v]
         logger.debug("Extending verb for route [%s %s]", v, p)
         verb_extender = VerbExtender(v, verb_docs, p, self.backend_type, self.vpc_link_id,
-                                     self.is_lambda_integration, self.backend_uri_start)
+                                     self.is_lambda_integration, self.backend_uri_start, self.fail_on_error)
         return verb_extender.extend()
 
     def _enable_cors(self, path_docs):

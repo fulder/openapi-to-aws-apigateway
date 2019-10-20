@@ -24,13 +24,15 @@ def main():
     parser.add_argument("--proxy", "-p", required=False, action="store_true", help="Proxy all requests to the backend")
     parser.add_argument("--vpc_link_id", "-v", required=False, help="If backend is an VPC link, provide the link ID")
     parser.add_argument("--debug", "-d", required=False, action="store_true", help="Turn on debug logs")
+    parser.add_argument("--fail_on_error", "-f", required=False, action="store_true",
+                        help="Raise exception on e.g. unsupported verb properties")
     args = parser.parse_args()
 
     if args.debug:
         logger.setLevel("DEBUG")
 
     generator = Generator(args.file, args.backend_url, args.proxy, args.vpc_link_id, args.apigateway_region,
-                          args.cors_origins)
+                          args.cors_origins, args.fail_on_error)
     generator.generate()
 
 

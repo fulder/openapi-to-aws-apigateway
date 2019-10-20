@@ -11,7 +11,7 @@ CORS_MAPPING_TEMPLATE = """
 
 class VerbExtender:
 
-    def __init__(self, verb, verb_docs, path, backend_type, vpc_link_id, is_lambda_integration, backend_url_start):
+    def __init__(self, verb, verb_docs, path, backend_type, vpc_link_id, is_lambda_integration, backend_url_start, fail_on_error):
         self.verb = verb
         self.verb_docs = verb_docs
         self.path = path
@@ -21,6 +21,7 @@ class VerbExtender:
             "type": backend_type
         }
         self.backend_url_start = backend_url_start
+        self.fail_on_error = fail_on_error
 
     def extend(self):
         self._validate_verb()
@@ -38,7 +39,7 @@ class VerbExtender:
             for i in range(0, len(self.verb_docs["parameters"])):
                 param = self.verb_docs["parameters"][i]
                 if param.get("in") in unsup_in:
-                    raise RuntimeError("Unsupported parameter with 'in': [{}]".format(param.get("in")))
+                    self._create_error("Unsupported parameter with 'in': [{}]".format(param.get("in")))
 
         if "responses" in self.verb_docs:
             for r in self.verb_docs["responses"]:
@@ -47,7 +48,12 @@ class VerbExtender:
                     del self.verb_docs["responses"][r]["schema"]
 
             if "default" in self.verb_docs["responses"]:
-                raise RuntimeError("Unsupported 'default' swagger response")
+                self._create_error("Unsupported 'default' swagger response")
+
+    def _create_error(self, error_msg):
+        logger.error(error_msg)
+        if self.fail_on_error:
+            raise RuntimeError(error_msg)
 
     def _init_integration(self):
         if self.vpc_link_id:

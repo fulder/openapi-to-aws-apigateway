@@ -130,6 +130,20 @@
             "required": true,
             "type": "integer",
             "format": "int64"
+          },
+          {
+            "name": "name",
+            "in": "formData",
+            "description": "Updated name of the pet",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "formData",
+            "description": "Updated status of the pet",
+            "required": false,
+            "type": "string"
           }
         ],
         "responses": {
@@ -241,6 +255,20 @@
             "required": true,
             "type": "integer",
             "format": "int64"
+          },
+          {
+            "name": "additionalMetadata",
+            "in": "formData",
+            "description": "Additional data to pass to server",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "file to upload",
+            "required": false,
+            "type": "file"
           }
         ],
         "responses": {
@@ -1006,7 +1034,7 @@
         ],
         "parameters": [],
         "responses": {
-          "200": {
+          "default": {
             "description": "successful operation",
             "headers": {}
           }
@@ -1017,8 +1045,8 @@
           "httpMethod": "GET",
           "uri": "http://${stageVariables.httpHost}/user/logout",
           "responses": {
-            "200": {
-              "statusCode": "200",
+            "default": {
+              "statusCode": "default",
               "responseTemplates": {
                 "application/json": "#if ($input.params(\"Origin\") != \"\" && $stageVariables.CORS_ORIGINS != \"\" && $input.params(\"Origin\") in $stageVariables.CORS_ORIGINS.split(\",\"))    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params(\"Origin\")#end"
               }
@@ -1054,7 +1082,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "default": {
             "description": "successful operation",
             "headers": {}
           }
@@ -1066,8 +1094,8 @@
           "uri": "http://${stageVariables.httpHost}/user",
           "requestParameters": {},
           "responses": {
-            "200": {
-              "statusCode": "200",
+            "default": {
+              "statusCode": "default",
               "responseTemplates": {
                 "application/json": "#if ($input.params(\"Origin\") != \"\" && $stageVariables.CORS_ORIGINS != \"\" && $input.params(\"Origin\") in $stageVariables.CORS_ORIGINS.split(\",\"))    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params(\"Origin\")#end"
               }
@@ -1106,7 +1134,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "default": {
             "description": "successful operation",
             "headers": {}
           }
@@ -1118,8 +1146,8 @@
           "uri": "http://${stageVariables.httpHost}/user/createWithArray",
           "requestParameters": {},
           "responses": {
-            "200": {
-              "statusCode": "200",
+            "default": {
+              "statusCode": "default",
               "responseTemplates": {
                 "application/json": "#if ($input.params(\"Origin\") != \"\" && $stageVariables.CORS_ORIGINS != \"\" && $input.params(\"Origin\") in $stageVariables.CORS_ORIGINS.split(\",\"))    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params(\"Origin\")#end"
               }
@@ -1158,7 +1186,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "default": {
             "description": "successful operation",
             "headers": {}
           }
@@ -1170,8 +1198,8 @@
           "uri": "http://${stageVariables.httpHost}/user/createWithList",
           "requestParameters": {},
           "responses": {
-            "200": {
-              "statusCode": "200",
+            "default": {
+              "statusCode": "default",
               "responseTemplates": {
                 "application/json": "#if ($input.params(\"Origin\") != \"\" && $stageVariables.CORS_ORIGINS != \"\" && $input.params(\"Origin\") in $stageVariables.CORS_ORIGINS.split(\",\"))    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params(\"Origin\")#end"
               }

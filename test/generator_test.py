@@ -15,15 +15,15 @@ class TestGenerator(unittest.TestCase):
 
     def setUp(self):
         self.current_folder = os.path.dirname(os.path.realpath(__file__))
-        self.input_file = os.path.join(self.current_folder, "petshop.json")
-        self.generator = Generator(self.input_file, "http://petstore.execute-api.eu-west-1.amazonaws.com/petstore",
-                                   False, "", "eu-west-1", "*")
+        self.generator = Generator("https://petstore.swagger.io/v2/swagger.json",
+                                   "https://petstore.swagger.io/v2",
+                                   False, "", "eu-west-1", "*", False)
 
     def test_generate_petshop(self):
         self.generator.generate()
         with open(os.path.join(self.current_folder, "petshop_extended.json")) as f:
             exp = json.load(f)
-        #self.maxDiff = None
+        # self.maxDiff = None
         print(self.generator.docs)
         self.assertEqual(exp, self.generator.docs)
 
