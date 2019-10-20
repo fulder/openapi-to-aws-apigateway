@@ -223,7 +223,7 @@ class Generator:
         for d in self.docs["definitions"]:
             def_docs = self.extended_docs["definitions"][d]
             if def_docs.get("xml"):
-                logger.info("Removing unsupported xml in definition [%s]", d)
+                logger.debug("Removing unsupported xml in definition [%s]", d)
                 del def_docs["xml"]
 
             properties = def_docs.get("properties")
@@ -233,11 +233,11 @@ class Generator:
 
             for prop in properties:
                 if properties[prop].get("xml"):
-                    logger.info("Removing unsupported xml in definition [%s] property [%s]", d, prop)
+                    logger.debug("Removing unsupported xml in definition [%s] property [%s]", d, prop)
                     del properties[prop]["xml"]
 
                 if properties[prop].get("example"):
-                    logger.info("Removing unsupported example in definition [%s] property [%s]", d, prop)
+                    logger.debug("Removing unsupported example in definition [%s] property [%s]", d, prop)
                     del properties[prop]["example"]
 
     def _save_openapi(self):
