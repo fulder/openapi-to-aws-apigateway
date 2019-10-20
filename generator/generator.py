@@ -64,6 +64,7 @@ class Generator:
 
         self._loop_paths()
 
+        self._add_security()
         self._remove_unsupported_model_properties()
 
         self._save_openapi()
