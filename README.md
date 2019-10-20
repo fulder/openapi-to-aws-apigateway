@@ -2,7 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/fulder/openapi-to-aws-apigateway/badge.svg?branch=master)](https://coveralls.io/github/fulder/openapi-to-aws-apigateway?branch=master)
 [![Python Version](https://img.shields.io/badge/python-2.7%2C3.3%2B-blue.svg)](https://www.python.org/)
 
-`oai-sam-api` is a script generating a SAM template together with OpenAPI documentation including [AWS OpenAPI extensions](https://docs.aws.amazon.com/en_pv/apigateway/latest/developerguide/api-gateway-swagger-extensions.html) from a OpenAPI/swagger documentation.
+`oai-sam-api` is a script generating a SAM template together with OpenAPI documentation including [AWS OpenAPI extensions](https://docs.aws.amazon.com/en_pv/apigateway/latest/developerguide/api-gateway-swagger-extensions.html) from an OpenAPI/swagger documentation.
 
 Simply provide your OpenApi/Swagger as an input and then use [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) to deploy a working AWS ApiGateway.  
 
@@ -17,7 +17,7 @@ Simply provide your OpenApi/Swagger as an input and then use [SAM CLI](https://d
 
 e.g:
 
-`oai-sam-api -f swagger/petshop.json -u http://petstore.swagger.io/v2 -c "*"`
+`oai-sam-api -f https://petstore.swagger.io/v2/swagger.json -u http://petstore.swagger.io/v2 -c "*"`
 
 ## Deploy AWS ApiGateway
 
