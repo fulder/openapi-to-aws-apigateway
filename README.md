@@ -23,7 +23,7 @@ e.g:
 
 * Install [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 * `sam package --template-file out/apigateway.yaml --s3-bucket <SAM_BUCKET> --output-file packaged.yaml` (See [sam package](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-package.html) for more options)
-* `sam deploy --template-file packaged.yaml`
+* `sam deploy --template-file packaged.yaml` (See [sam deploy](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html) for more options)
 
 ## Show list of available arguments
 `oai-sam-api --help`
