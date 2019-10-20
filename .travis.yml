@@ -4,27 +4,28 @@ stages:
   - test
   - deploy
 
+#python:
+#        - "2.7"
+#        - "3.4"
+#        - "3.5"
+#        - "3.6"      # current default Python on Travis CI
+#        - "3.7"
+#        - "3.8"
+#        - "3.7-dev"  # 3.7 development branch
+#        - "3.8-dev"  # 3.8 development branch
+#        - "nightly"  # nightly build
+
 jobs:
   include:
     - stage: test
-      python:
-        - "2.7"
-        - "3.4"
-        - "3.5"
-        - "3.6"      # current default Python on Travis CI
-        - "3.7"
-        - "3.8"
-        - "3.7-dev"  # 3.7 development branch
-        - "3.8-dev"  # 3.8 development branch
-        - "nightly"  # nightly build
+      python: "2.7"
       install:
         - pip install -r requirements-dev.txt
         - pip install coveralls
       script:
-        - PYTHONPATH=. pytest --log-level DEBUG test/ --cov=generator
+        - make test-coverage
       after_success:
         - coveralls
-
     - stage: deploy
       script:
         - echo "TEST"
