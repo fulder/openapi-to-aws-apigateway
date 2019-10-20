@@ -23,12 +23,26 @@ class VerbExtender:
         self.backend_url_start = backend_url_start
 
     def extend(self):
+        self._validate_verb()
+
         self._init_integration()
         self._create_integration()
         self._add_security()
-        self._check_unsupported()
 
         return self.verb_docs
+
+    def _validate_verb(self):
+        if "parameters" in self.verb_docs:
+            unsup_in = ["formData"]
+
+            for i in range(0, len(self.verb_docs["parameters"]) - 1):
+                param = self.verb_docs["parameters"][i]
+                if param.get("in") in unsup_in:
+                    raise RuntimeError("Unsupported parameter with 'in': [{}]".format(param.get("in")))
+
+        if "responses" in self.verb_docs:
+            if "default" in self.verb_docs["responses"]:
+                raise RuntimeError("Unsupported 'default' swagger response")
 
     def _init_integration(self):
         if self.vpc_link_id:
@@ -97,13 +111,4 @@ class VerbExtender:
         # TODO: Implement security support
         if self.verb_docs.get("security"):
             del self.verb_docs["security"]
-
-    def _check_unsupported(self):
-        if "parameters" in self.verb_docs:
-            unsup_in = ["formData"]
-
-            for i in range(0, len(self.verb_docs["parameters"])-1):
-                param = self.verb_docs["parameters"][i]
-                if param.get("in") in unsup_in:
-                    raise RuntimeError("Unsupported parameter with 'in': [{}]".format(param.get("in")))
 

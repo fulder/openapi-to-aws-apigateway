@@ -717,7 +717,7 @@
         ],
         "parameters": [],
         "responses": {
-          "default": {
+          "200": {
             "description": "successful operation"
           }
         }
@@ -750,7 +750,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "successful operation"
           }
         }
@@ -786,7 +786,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "successful operation"
           }
         }
@@ -822,7 +822,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "successful operation"
           }
         }

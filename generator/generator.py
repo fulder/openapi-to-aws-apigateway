@@ -180,7 +180,7 @@ class Generator:
             "x-amazon-apigateway-integration": {
                 "type": "mock",
                 "responses": {
-                    "default": {
+                    "200": {
                         "statusCode": "200",
                         "responseTemplates": {
                             "application/json": CORS_MAPPING_TEMPLATE_OPTIONS
