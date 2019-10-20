@@ -1,42 +1,42 @@
 language: python
 stages:
-  - test
-  - deploy
+- test
+- deploy
 install:
-  - pip install -r requirements-dev.txt
+- pip install -r requirements-dev.txt
 script:
-  - make test-coverage
+- make test-coverage
 jobs:
   include:
-    - stage: test
-      python: 2.7
-      install:
-        - pip install -r requirements-dev.txt
-        - pip install coveralls
-      after_success:
-        - coveralls
-    - python: 3.4
-    - python: 3.5
-    - python: 3.6
-    - python: 3.7
-    - python: 3.7-dev
-    - python: 3.8-dev
-    - python: nightly
-    - stage: test
-      python: 3.8
-      install:
-        - pip install -r requirements-dev.txt
-        - pip install coveralls
-      after_success:
-        - coveralls
-    - stage: deploy
-      python: 3.8
-      install: skip
-      script: skip
-      deploy:
-        provider: pypi
-        user: __token__
-        password:
-          secure: gm/nSQTzAHqWtkkKQ5waDR3pR7QtMAYJscu4grIzyIO844ePECcHvx5sDVBhjKu98Uu0mov7lm9NvmIMCa0B5eDJq8N00+B7/JY6jYk9qOet+2OVKv+diK3qWZTcRnnuWqJmhSeXozHp8xCAf8UvBPutO55foBONGNj/dmObf4O8TibP0xwv4tf8N6WqkfFmKt4pj7lwAlg1EedpN+hMeU5XHCu21LpMm7P4KU/Bc/fT/w8su3IeJ35xpiOVajgzuOJm139yMiuWaP/VzIb1yH39YrN+fS0588NdfRi9KW8UByZO+tMloUxUAseUvJwQQfeJcKH8NJBU8MCW0lotRXvmbbTCBjb/kQh89HF2H+zk005BbRusK/ozyNd3YCsioLPXZ4CH8UigMBIKLup7FJ9gLTmStnLci02hcwEXCWX+eRUFVzFFynFpYP5walfX8jb1mh4ZVauYMP2l7qLNVwHEr2Qtu72VerB3Z5B8OMKuPn1yLf2AMcZxKFC+EZSQBGwlGhd36E60UGfvaWEh6Xz8/KCuHO41xjokGr39K8D/JHLyBVzBBAwjI3ZjuobS+YXA07n48YpY3ymUj+3+IQClMuIL9l0rVJulrLWzmgiBkySDOmb6cj6o3d4/DRLnYtCfH/9dN77eASgaw5lUiRVBy+ZSx52hD4dm/neEFjs=
-        on:
-          tags: true
+  - stage: test
+    python: 2.7
+    install:
+    - pip install -r requirements-dev.txt
+    - pip install coveralls
+    after_success:
+    - coveralls
+  - python: 3.4
+  - python: 3.5
+  - python: 3.6
+  - python: 3.7
+  - python: 3.7-dev
+  - python: 3.8-dev
+  - python: nightly
+  - stage: test
+    python: 3.8
+    install:
+    - pip install -r requirements-dev.txt
+    - pip install coveralls
+    after_success:
+    - coveralls
+  - stage: deploy
+    python: 3.8
+    install: skip
+    script: skip
+    deploy:
+      provider: pypi
+      user: __token__
+      password:
+        secure: gvWd9N1H5gRRfXobSy1omhfwgpHNtPpAkUsTt6exVri1QShOdppeQo2qsIP/+Zbrmun8jz28DruRc7mFURqyWOkNNU4m3cDZNE2km/sXlkq/+rNdX+CfMUoj4qmFgRdJOVdmwr78alZZxVO7nDhk9ty5l2645cV6yWXoR+WYJlYI2Vyod6DlBNcuSxmHgo5Noc9YXYcd/CcH7kGnPxRhJPQjgDIBlGfdOK6NPttY9oa+rozEiwsMNubVIOug7GHUMdG7W2mvi7jBV88ci7zoe5ESDfEJ/kmQwCSoNrPL3A5+bDA3nSFyjeB9XJHZR1rSlOyA7ZAuhQPh2bzM1XchjWzp8kvsCprpqsc8/fFQedOQkz3GcSnaPUCi6/cLnqSW/bObg9d56FkxBVCx7NRlW7A1v6t+fSW9fuLGyvsy+LBAvZN8OAS7uAWKG/ErgZBz4NAd8k7gTvT8TrKhjA6QiD/xFgHYpVwpf6HuGpzefcUIy9VyeAB3D1Vg6fhlqhsVkQ/leMaWemN3mjdr5HCXyf18s8CxasWgDlYFyLyjUxryED1vS0CNibMUr/V2Jv7sA6SGa00l4tpchz47u6hPN0hkF1XAE8PLwb5upOdMUN6tOuLm9L6JCPWSwgzmWlsgkZL7GBKanjS5Dk7QffXRD3nMQo01jmKtchev5z224hw=
+      on:
+        tags: true
