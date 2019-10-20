@@ -5,6 +5,8 @@ import os
 import re
 import shutil
 
+import requests
+
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -100,6 +102,13 @@ class Generator:
         return self.backend_url.startswith("arn:")
 
     def _load_file(self):
+        if "http" in self.openapi_path:
+            logger.debug("Downloading JSON file from URL: [%s]", self.openapi_path)
+            ret = requests.get(self.openapi_path)
+            self.docs = ret.json()
+            self.extended_docs = copy.deepcopy(self.docs)
+            return
+
         with open(self.openapi_path, "r") as f:
             if ".json" in self.openapi_path:
                 self.docs = json.load(f)
