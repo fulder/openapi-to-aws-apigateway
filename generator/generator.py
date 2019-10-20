@@ -62,6 +62,14 @@ class Generator:
 
         self._init_sam_template()
 
+        self._loop_paths()
+
+        self._remove_unsupported_model_properties()
+
+        self._save_openapi()
+        self._save_cloudformation()
+
+    def _loop_paths(self):
         for p in self.docs["paths"]:
             path_docs = self.extended_docs["paths"][p]
 
@@ -69,11 +77,6 @@ class Generator:
                 self.extended_docs["paths"][p][v] = self._extend_verbs(p, v)
 
             self._enable_cors(path_docs)
-
-        self._remove_unsupported_model_properties()
-
-        self._save_openapi()
-        self._save_cloudformation()
 
     def _create_empty_output_folder(self):
         if os.path.isdir(self.output_folder):
