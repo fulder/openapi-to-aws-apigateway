@@ -40,6 +40,8 @@ class Generator:
         self.output_path_sam = os.path.join(self.output_folder, "apigateway.yaml")
         self.stage_variables = {"backendUrl": self.backend_url}
 
+        self.unsupported_keys = ["xml", "additionalProperties", "anyOffields", "example"]
+
         # Created by helper funcs during generate
         self.docs = None
         self.extended_docs = None
@@ -65,7 +67,7 @@ class Generator:
         self._loop_paths()
 
         self._add_security()
-        self._remove_unsupported_model_properties()
+        self.extended_docs = self._remove_unsupported(self.extended_docs)
 
         self._save_openapi()
         self._save_cloudformation()
@@ -211,35 +213,17 @@ class Generator:
         if "securityDefinitions" in self.docs:
             del self.extended_docs["securityDefinitions"]
 
-    def _remove_unsupported_model_properties(self):
-        """
-        Removing unsupported properties see:
-        https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-known-issues.html#api-gateway-known-issues-rest-apis
-        :return:
-        """
-        if "definitions" not in self.docs:
-            logger.debug("No definitions in docs")
-            return
+    def _remove_unsupported(self, current_dict):
+        new_dict = copy.deepcopy(current_dict)
 
-        for d in self.docs["definitions"]:
-            def_docs = self.extended_docs["definitions"][d]
-            if def_docs.get("xml"):
-                logger.debug("Removing unsupported xml in definition [%s]", d)
-                del def_docs["xml"]
-
-            properties = def_docs.get("properties")
-            if not properties:
-                logger.debug("No properties in definition: [%s]", d)
+        for k, v in current_dict.items():
+            if k in self.unsupported_keys:
+                del new_dict[k]
                 continue
 
-            for prop in properties:
-                if properties[prop].get("xml"):
-                    logger.debug("Removing unsupported xml in definition [%s] property [%s]", d, prop)
-                    del properties[prop]["xml"]
-
-                if properties[prop].get("example"):
-                    logger.debug("Removing unsupported example in definition [%s] property [%s]", d, prop)
-                    del properties[prop]["example"]
+            if isinstance(v, dict):
+                new_dict[k] = self._remove_unsupported(v)
+        return new_dict
 
     def _save_openapi(self):
         with open(self.output_path_openapi, "w") as f:
