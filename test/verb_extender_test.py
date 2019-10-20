@@ -54,3 +54,24 @@ class TestVerbExtender(unittest.TestCase):
             "uri": "TEST_START_URL"
         }
         self.assertEqual(exp_verb, verb_extender.integration)
+
+    def test_validate_verb_not_supported_param(self):
+        invalid_verb = {
+            "parameters": [
+                {
+                    "in": "formData"
+                }
+            ]
+        }
+        verb_extender = VerbExtender("get", invalid_verb, "/path1", "aws", "", True, "TEST_START_URL")
+        self.assertRaises(RuntimeError, verb_extender._validate_verb)
+
+    def test_validate_verb_not_supported_response(self):
+        invalid_verb = {
+            "responses": {
+                "default": {}
+            }
+
+        }
+        verb_extender = VerbExtender("get", invalid_verb, "/path1", "aws", "", True, "TEST_START_URL")
+        self.assertRaises(RuntimeError, verb_extender._validate_verb)
