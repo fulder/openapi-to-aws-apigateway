@@ -41,6 +41,11 @@ class VerbExtender:
                     raise RuntimeError("Unsupported parameter with 'in': [{}]".format(param.get("in")))
 
         if "responses" in self.verb_docs:
+            for r in self.verb_docs["responses"]:
+                if "schema" in self.verb_docs["responses"][r]:
+                    logger.debug("Schema not supported in responses, removing")
+                    del self.verb_docs["responses"][r]["schema"]
+
             if "default" in self.verb_docs["responses"]:
                 raise RuntimeError("Unsupported 'default' swagger response")
 
