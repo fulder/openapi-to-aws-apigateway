@@ -6,6 +6,10 @@ from generator import Generator
 
 
 def main():
+    logger = logging.getLogger("generator")
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel("INFO")
+
     parser = argparse.ArgumentParser(description="Generate AWS ApiGateway CloudFormation from OpenAPI specification")
     # Required params
     parser.add_argument("--file", "-f", required=True, type=str, help="Path to the OpenAPI specification file")
@@ -26,7 +30,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger("generator")
-    logger.addHandler(logging.StreamHandler())
-    logger.setLevel("INFO")
     sys.exit(main())
