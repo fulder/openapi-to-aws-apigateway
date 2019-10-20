@@ -37,8 +37,12 @@ jobs:
 
   # deploy
   - stage: deploy
-    provider: pypi
-    user: "__token__"
-    password:
-      secure: t2HKJEpByVOSSvHBCEMkPHIlI+5i9D03z9fTPnaBkvntpczPPEsr7Pq2cVOMfvBfKX5vxLEataZjvxB/X1U5a4xQ+X98RLQRD56GrKlGaC7NC9TzBLRLj2+W+njHPWGLbypUmPnC4bkvbzsvWlL63nCdATZRJeROP9xXI9WXlFv8zNWx+P0Ez/QnAuTBeul6VJCu2TImrkOFtwQcehtQrve4Kcb2hSdk9JzzTI9BMhc2NbE14iqnVvZY0iXPZp2g28yvhNx8SdLSwKIFDSCE/P6405i9S8ULcI/R2XzHGbN42lLDrklqItmnSKPgnvj0m7aYYhG5fGhVdu6Lnqs/kR9s5R6YX7HfWOlYxbxyrUvFgOBd5i+Ru9kyh5PlE1F7JeV3cXsvh18BUgl7A4VzyOauwNgyv+AjGqe5Q/WZL1+xaBcjJiT844w/+esACu4TDeG5fm4FPed0tMy2UM19ziZj6Depq7BjYMNjkoZruE57TBHL1avr36kTm/Mi4oSMmhtWp4oJYt3ovopdVEyJpsp7aMLghtBaAcOMuG/vk/EHaSnFB6f6+t+2kSHd20teYStwjYcRLwX+Vks8i2+csfQeAUO+XKebNvVtiVwiRIdDTZqbp6z7ws5hnHH3HCQKhAf/M49kCG5Dg0sScXYOlfCCIGjuuisTVhzNgSP6VJ0=
-    server: https://test.pypi.org/legacy/
+    python: 3.8
+    install: skip
+    script: skip
+    deploy:
+      provider: pypi
+      user: "__token__"
+      password:
+        secure: t2HKJEpByVOSSvHBCEMkPHIlI+5i9D03z9fTPnaBkvntpczPPEsr7Pq2cVOMfvBfKX5vxLEataZjvxB/X1U5a4xQ+X98RLQRD56GrKlGaC7NC9TzBLRLj2+W+njHPWGLbypUmPnC4bkvbzsvWlL63nCdATZRJeROP9xXI9WXlFv8zNWx+P0Ez/QnAuTBeul6VJCu2TImrkOFtwQcehtQrve4Kcb2hSdk9JzzTI9BMhc2NbE14iqnVvZY0iXPZp2g28yvhNx8SdLSwKIFDSCE/P6405i9S8ULcI/R2XzHGbN42lLDrklqItmnSKPgnvj0m7aYYhG5fGhVdu6Lnqs/kR9s5R6YX7HfWOlYxbxyrUvFgOBd5i+Ru9kyh5PlE1F7JeV3cXsvh18BUgl7A4VzyOauwNgyv+AjGqe5Q/WZL1+xaBcjJiT844w/+esACu4TDeG5fm4FPed0tMy2UM19ziZj6Depq7BjYMNjkoZruE57TBHL1avr36kTm/Mi4oSMmhtWp4oJYt3ovopdVEyJpsp7aMLghtBaAcOMuG/vk/EHaSnFB6f6+t+2kSHd20teYStwjYcRLwX+Vks8i2+csfQeAUO+XKebNvVtiVwiRIdDTZqbp6z7ws5hnHH3HCQKhAf/M49kCG5Dg0sScXYOlfCCIGjuuisTVhzNgSP6VJ0=
+      server: https://test.pypi.org/legacy/
