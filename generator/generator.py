@@ -13,7 +13,7 @@ except ImportError:
 
 import yaml
 
-from verb_extender import VerbExtender
+from .verb_extender import VerbExtender
 
 CURRENT_FOLDER = os.path.abspath(os.getcwd())
 CORS_MAPPING_TEMPLATE_OPTIONS = """\

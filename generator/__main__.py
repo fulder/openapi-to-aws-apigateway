@@ -2,7 +2,7 @@ import argparse
 import logging
 import sys
 
-from generator import Generator
+from .generator import Generator
 
 
 def main():
