@@ -1,6 +1,6 @@
 .PHONY: test-coverage
 test-coverage:
-	PYTHONPATH=. pytest --log-level DEBUG test/ --cov=generator && coverage html
+	PYTHONPATH=. pytest --ignore=__main__.py --log-level DEBUG test/ --cov=generator && coverage html
 
 .PHONY: install-dev
 install-dev:

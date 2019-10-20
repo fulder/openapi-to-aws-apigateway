@@ -1,0 +1,4 @@
+[run]
+omit =
+    # main
+    generator/__main__.py
