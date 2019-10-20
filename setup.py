@@ -5,7 +5,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="oai-sam",
-    version="0.0.1",
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     author="Michal Sadowski",
     entry_points={
         "console_scripts": [
