@@ -4,7 +4,7 @@
 
 `oai-sam-api` is a script generating a SAM template together with OpenAPI documentation including [AWS OpenAPI extensions](https://docs.aws.amazon.com/en_pv/apigateway/latest/developerguide/api-gateway-swagger-extensions.html) from a OpenAPI/swagger documentation.
 
-Simply provide your service OpenApi/Swagger as an input and then use [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) to deploy a working AWS ApiGateway.  
+Simply provide your OpenApi/Swagger as an input and then use [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) to deploy a working AWS ApiGateway.  
 
 # Install
 
