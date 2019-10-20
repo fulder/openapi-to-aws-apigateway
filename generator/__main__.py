@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from generator.generator import Generator
+from generator import Generator
 
 
 def main():

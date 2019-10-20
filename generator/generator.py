@@ -13,9 +13,9 @@ except ImportError:
 
 import yaml
 
-from .verb_extender import VerbExtender
+from verb_extender import VerbExtender
 
-CURRENT_FOLDER = os.path.dirname(os.path.realpath(__file__))
+CURRENT_FOLDER = os.path.abspath(os.getcwd())
 CORS_MAPPING_TEMPLATE_OPTIONS = """\
 #if($input.params("Origin") !="" && $stageVariables.CORS_ORIGINS != "" && $stageVariables.CORS_ORIGINS.split(",").contains($input.params("Origin")))
 #set($context.responseOverride.header.Access-Control-Allow-Origin=$input.params("Origin"))
