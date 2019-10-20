@@ -61,8 +61,17 @@ class Generator:
 
         self._init_sam_template()
 
-        self._extend_verbs()
-        self._enable_cors()
+        extended_docs = copy.deepcopy(self.docs)
+
+        for p in self.docs["paths"]:
+            path_docs = extended_docs["paths"][p]
+
+            for v in self.docs["paths"][p]:
+                extended_docs["paths"][p][v] = self._extend_verbs(p, v)
+
+            self._enable_cors(path_docs)
+
+        self.docs = extended_docs
 
         self._remove_unsupported_model_properties()
 
@@ -146,65 +155,54 @@ class Generator:
             }
         }
 
-    def _extend_verbs(self):
-        extended_docs = copy.deepcopy(self.docs)
+    def _extend_verbs(self, p, v):
+        verb_docs = self.docs["paths"][p][v]
+        logger.debug("Extending verb for route [%s %s]", v, p)
+        verb_extender = VerbExtender(v, verb_docs, p, self.backend_type, self.vpc_link_id,
+                                     self.is_lambda_integration, self.backend_uri_start)
+        return verb_extender.extend()
 
-        for p in self.docs["paths"]:
-            for v in self.docs["paths"][p]:
-                verb = self.docs["paths"][p][v]
-
-                logger.debug("Extending verb for route [%s %s]", v, p)
-                verb_extender = VerbExtender(v, verb, p, self.backend_type, self.vpc_link_id,
-                                             self.is_lambda_integration, self.backend_uri_start)
-                extended_docs["paths"][p][v] = verb_extender.extend()
-
-        self.docs = extended_docs
-
-    def _enable_cors(self):
-        extended_docs = copy.deepcopy(self.docs)
-
-        for p in self.docs["paths"]:
-            extended_docs["paths"][p]["options"] = {
-                "summary": "CORS support",
-                "description": "Enable CORS by returning correct headers",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CORS"
-                ],
-                "x-amazon-apigateway-integration": {
-                    "type": "mock",
-                    "responses": {
-                        "default": {
-                            "statusCode": "200",
-                            "responseTemplates": {
-                                "application/json": CORS_MAPPING_TEMPLATE_OPTIONS
-                            }
+    def _enable_cors(self, path_docs):
+        path_docs["options"] = {
+            "summary": "CORS support",
+            "description": "Enable CORS by returning correct headers",
+            "consumes": [
+                "application/json"
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "tags": [
+                "CORS"
+            ],
+            "x-amazon-apigateway-integration": {
+                "type": "mock",
+                "responses": {
+                    "default": {
+                        "statusCode": "200",
+                        "responseTemplates": {
+                            "application/json": CORS_MAPPING_TEMPLATE_OPTIONS
                         }
                     }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Default response for CORS method",
-                        "headers": {
-                            "Access-Control-Allow-Headers": {
-                                "type": "string"
-                            },
-                            "Access-Control-Allow-Methods": {
-                                "type": "string"
-                            },
-                            "Access-Control-Allow-Origin": {
-                                "type": "string"
-                            }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Default response for CORS method",
+                    "headers": {
+                        "Access-Control-Allow-Headers": {
+                            "type": "string"
+                        },
+                        "Access-Control-Allow-Methods": {
+                            "type": "string"
+                        },
+                        "Access-Control-Allow-Origin": {
+                            "type": "string"
                         }
                     }
                 }
             }
-            self.docs = extended_docs
+        }
 
     def _remove_unsupported_model_properties(self):
         """
