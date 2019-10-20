@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 
 from generator import Generator
 
@@ -28,4 +29,4 @@ if __name__ == "__main__":
     logger = logging.getLogger("generator")
     logger.addHandler(logging.StreamHandler())
     logger.setLevel("INFO")
-    main()
+    sys.exit(main())
