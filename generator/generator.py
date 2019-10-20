@@ -16,6 +16,13 @@ import yaml
 from .verb_extender import VerbExtender
 
 CURRENT_FOLDER = os.path.dirname(os.path.realpath(__file__))
+CORS_MAPPING_TEMPLATE_OPTIONS = """
+#if ($input.params("Origin") !="" && $stageVariables.CORS_ORIGINS != "" && $input.params("Origin") in $stageVariables.CORS_ORIGINS.split(","))
+    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params("Origin")
+    #$context.responseOverride.header.Access-Control-Allow-Headers={headers}
+    #$context.responseOverride.header.Access-Control-Allow-Methods={methods}
+#end
+""".replace("\n", "")
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +62,9 @@ class Generator:
         self._init_sam_template()
 
         self._extend_verbs()
+        self._enable_cors()
+
+        self._remove_unsupported_model_properties()
 
         self._save_openapi()
         self._save_cloudformation()
@@ -147,6 +157,86 @@ class Generator:
                 verb_extender = VerbExtender(v, verb, p, self.backend_type, self.vpc_link_id,
                                              self.is_lambda_integration, self.backend_uri_start)
                 extended_docs["paths"][p][v] = verb_extender.extend()
+
+        self.docs = extended_docs
+
+    def _enable_cors(self):
+        extended_docs = copy.deepcopy(self.docs)
+
+        for p in self.docs["paths"]:
+            extended_docs["paths"][p]["options"] = {
+                "summary": "CORS support",
+                "description": "Enable CORS by returning correct headers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CORS"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "mock",
+                    "responses": {
+                        "default": {
+                            "statusCode": "200",
+                            "responseTemplates": {
+                                "application/json": CORS_MAPPING_TEMPLATE_OPTIONS
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Default response for CORS method",
+                        "headers": {
+                            "Access-Control-Allow-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Origin": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+            self.docs = extended_docs
+
+    def _remove_unsupported_model_properties(self):
+        """
+        Removing unsupported properties see:
+        https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-known-issues.html#api-gateway-known-issues-rest-apis
+        :return:
+        """
+        if "definitions" not in self.docs:
+            logger.debug("No definitions in docs")
+            return
+
+        extended_docs = copy.deepcopy(self.docs)
+
+        for d in self.docs["definitions"]:
+            def_docs = extended_docs["definitions"][d]
+            if def_docs.get("xml"):
+                logger.info("Removing unsupported xml in definition [%s]", d)
+                del def_docs["xml"]
+
+            properties = def_docs.get("properties")
+            if not properties:
+                logger.debug("No properties in definition: [%s]", d)
+                continue
+
+            for prop in properties:
+                if properties[prop].get("xml"):
+                    logger.info("Removing unsupported xml in definition [%s] property [%s]", d, prop)
+                    del properties[prop]["xml"]
+
+                if properties[prop].get("example"):
+                    logger.info("Removing unsupported example in definition [%s] property [%s]", d, prop)
+                    del properties[prop]["example"]
 
         self.docs = extended_docs
 

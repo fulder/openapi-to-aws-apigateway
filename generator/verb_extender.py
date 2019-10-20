@@ -2,6 +2,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+CORS_MAPPING_TEMPLATE = """
+#if ($input.params("Origin") != "" && $stageVariables.CORS_ORIGINS != "" && $input.params("Origin") in $stageVariables.CORS_ORIGINS.split(","))
+    #$context.responseOverride.header.Access-Control-Allow-Origin=$input.params("Origin")
+#end
+""".replace("\n", "")
+
 
 class VerbExtender:
 
@@ -19,6 +25,7 @@ class VerbExtender:
     def extend(self):
         self._init_integration()
         self._create_integration()
+        self._add_security()
 
         return self.verb_docs
 
@@ -75,8 +82,8 @@ class VerbExtender:
             for r in responses:
                 amz_responses[r] = {
                     "statusCode": r,
-                    "responseParameters": {
-                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    "responseTemplates": {
+                        "application/json": CORS_MAPPING_TEMPLATE
                     }
                 }
             self.integration["responses"] = amz_responses
@@ -85,7 +92,7 @@ class VerbExtender:
             if "headers" not in self.verb_docs["responses"][r]:
                 self.verb_docs["responses"][r]["headers"] = {}
 
-            self.verb_docs["responses"][r]["headers"]["Access-Control-Allow-Origin"] = {
-                "type": "string",
-                "description": "CORS origin header added by openapi-aws-apigateway-generator"
-            }
+    def _add_security(self):
+        # TODO: Implement security support
+        if self.verb_docs.get("security"):
+            del self.verb_docs["security"]
