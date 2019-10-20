@@ -8,3 +8,4 @@ __pycache__
 /out/*
 dist/*
 build/*
+*egg-info/*
