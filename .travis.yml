@@ -26,6 +26,7 @@ jobs:
     - stage: coverage
       python: 3.8
       install:
+        - pip install -r requirements-dev.txt
         - pip install coveralls
       after_success:
         - coveralls

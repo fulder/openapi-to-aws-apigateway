@@ -21,5 +21,5 @@ publish-test: clean build
 
 .PHONY: clean
 clean:
-	rm -rf dist build oai_sam_api.egg-info out htmlcov .pytest_cache
+	rm -rf dist build oai_sam.egg-info out htmlcov .pytest_cache
 	rm -f .coverage
