@@ -17,7 +17,7 @@ Simply provide your OpenApi/Swagger as an input and then use [SAM CLI](https://d
 
 e.g:
 
-`oai-sam-api -f swagger/petshop.json -u http://petstore.swagger.io/v2 -c *`
+`oai-sam-api -f swagger/petshop.json -u http://petstore.swagger.io/v2 -c "*"`
 
 ## Deploy AWS ApiGateway
 
