@@ -4,12 +4,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="oai-sam-api",
+    name="oai-sam",
     version="0.0.1",
     author="Michal Sadowski",
     entry_points={
         "console_scripts": [
-            "oai-sam-api = generator.__main__:main",
+            "oai-sam = generator.__main__:main",
         ]
     },
     author_email="misad90@gmail.com",
