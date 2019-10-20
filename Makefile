@@ -15,6 +15,11 @@ build:
 	python3 setup.py sdist bdist_wheel
 
 .PHONY: publish-test
-publish-test: build
+publish-test: clean build
 	python3 -m pip install --user --upgrade twine
 	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+.PHONY: clean
+clean:
+	rm -rf dist build oai_sam_api.egg-info out htmlcov .pytest_cache
+	rm -f .coverage
