@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 class Generator:
 
-    def __init__(self, openapi_path, backend_url, proxy, vpc_link_id, apigateway_region):
+    def __init__(self, openapi_path, backend_url, proxy, vpc_link_id, apigateway_region, cors_origins):
         self.openapi_path = openapi_path
         self.backend_url = backend_url
         self.proxy = proxy
@@ -44,7 +44,10 @@ class Generator:
 
         self.output_folder = os.path.abspath(os.path.join(CURRENT_FOLDER, "out"))
         self.output_path_sam = os.path.join(self.output_folder, "apigateway.yaml")
-        self.stage_variables = {"backendUrl": self.backend_url}
+        self.stage_variables = {
+            "backendUrl": self.backend_url,
+            "corsOrigins": "{}".format(cors_origins)
+        }
 
         self.unsupported_keys = ["xml", "additionalProperties", "anyOffields", "example"]
 
@@ -190,7 +193,8 @@ class Generator:
 
         methods = ",".join(allowed_methods)
         allowed_headers_cases = "".join(allowed_headers)
-        mapping_template_script = CORS_MAPPING_TEMPLATE_OPTIONS.format(methods=methods, allowed_headers_cases=allowed_headers_cases)
+        mapping_template_script = CORS_MAPPING_TEMPLATE_OPTIONS.format(methods=methods,
+                                                                       allowed_headers_cases=allowed_headers_cases)
 
         path_docs["options"] = {
             "summary": "CORS support",
