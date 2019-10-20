@@ -26,6 +26,7 @@ class VerbExtender:
         self._init_integration()
         self._create_integration()
         self._add_security()
+        self._check_unsupported()
 
         return self.verb_docs
 
@@ -96,3 +97,13 @@ class VerbExtender:
         # TODO: Implement security support
         if self.verb_docs.get("security"):
             del self.verb_docs["security"]
+
+    def _check_unsupported(self):
+        if "parameters" in self.verb_docs:
+            unsup_in = ["formData"]
+
+            for i in range(0, len(self.verb_docs["parameters"])-1):
+                param = self.verb_docs["parameters"][i]
+                if param.get("in") in unsup_in:
+                    raise RuntimeError("Unsupported parameter with 'in': [{}]".format(param.get("in")))
+
