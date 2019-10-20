@@ -7,6 +7,11 @@ setuptools.setup(
     name="oai-sam-api",
     version="0.0.1",
     author="Michal Sadowski",
+    entry_points={
+        "console_scripts": [
+            "oai-sam-api = generator.__main__:main",
+        ]
+    },
     author_email="misad90@gmail.com",
     description="Generate SAM template and AWS OpenAPI extended docs",
     long_description=long_description,
